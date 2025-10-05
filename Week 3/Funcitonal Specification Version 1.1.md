@@ -22,7 +22,7 @@ To guide the design, we consider the following target user:
 
 **3.1. Use Case Diagram:** The following diagram provides a high-level overview of the main interactions the "Student" actor can have with the application.
 
-![](/images/Use Case Diagram.png)
+![](/images/Use-Case-Diagram.png)
 
 **3.2. Master Use Case List:** This list provides a comprehensive overview of all planned functionalities for the application.
 
@@ -82,13 +82,13 @@ To guide the design, we consider the following target user:
     *   **Goal:** To allow a logged-in user to add a new task to their To-Do list.
     *   **Flow:** The user navigates to the "To-Do List," taps "Add Task," fills in the details (title, due date), and saves. The new task then appears on their list.
 
-![](/images/Add New Task.png)
+![](/images/Add-New-Task.png)
 
 *   **Use Case: Complete a Focus Mode Session**
     *   **Goal:** To help a logged-in user study without distraction and earn points.
     *   **Flow:** The user navigates to the "Focus Mode," sets a timer, and starts the session. If they complete the session without switching apps, they are awarded points. If they fail, they receive a small point penalty.
 
-![](/images/Focus Mode.png)
+![](/images/Focus-Mode.png)
 
 **3.3.3. Key Innovative Use Case**
 
@@ -101,4 +101,4 @@ To guide the design, we consider the following target user:
         3.  Both students tap a "Confirm Interaction" button on their respective devices to mutually verify the interaction.
         4.  The system registers the confirmation and awards both students points.
 
-![](/images/Confirm Social Interaction.png)
+![](/images/Confirm-Social-Interaction.png)
