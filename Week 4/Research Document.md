@@ -1,32 +1,28 @@
-Research Document
+# "Research Document"
 
   
-Project Title: Gamified App For Student
+## Project Title: Gamified App For Student
 
-Author: Shuai Jiang
+## Author: Shuai Jiang
 
-Date: 12/10/2025
+## Date: 12/10/2025
 
-1.  Introduction
-    1.  Problem Statement
-
+# 1  Introduction
+## 1.1  Problem Statement
 Higher education students today face a unique set of challenges. They often struggle with disorganized tasks from various sources, difficulty in maintaining motivation for self-directed study, and a sense of social isolation on a large campus. Balancing these academic pressures with personal well-being is a challenge.
 
-*   1.  Project Vision & Goals
-
+## 1.2  Project Vision & Goals
 This project is a mobile app designed to help students manage their studies and personal growth in a more engaging way. To keep students motivated, the app uses several game-like features. By completing personal goals and real-world activities, students can earn Points, unlock achievement Badges, and compete on staged Leaderboards. What makes this app different is its focus on the real world. Instead of encouraging more online chatting, its key goal is to provide students with a tool to practice and improve their face-to-face social skills.
 
-1.  Market and Competitive Analysis
-    1.  Analysis: Habitica
-        1.  Core Concept
-
+# 2  Market and Competitive Analysis
+## 2.1  Analysis: Habitica
+### 2.1.1  Core Concept
 After using it for a week, I found that Habitica is an innovative productivity tool. My understanding is that it changes a user's real-life tasks (including habits, daily to-do, and normal tasks) into a complete role-playing game (RPG). I saw that users get experience and gold by completing tasks in real life, which upgrades their virtual character in the game. I believe this method makes the process of completing boring tasks full of fun.
 
-*   *   1.  Gamification Mechanics
-
+### 2.1.2  Gamification Mechanics
 Some important features I identified are: Experience Points (XP) & Levels; Gold & Reward Shop; Health Points (Health) & Punishment; Character Role-Playing Elements: Equipment, Pets, and Mounts; and a Social System where users can form "Guilds".
 
-2.2.3 Something can learn from this app
+### 2.1.3 Something can learn from this app
 
 A. Valuable Concepts I Can Borrow
 
@@ -44,7 +40,7 @@ C. Concepts I Can Adapt
 
 **Changing "Guilds" into Offline "Study Groups":** I saw that Habitica's "Guilds" is a pure online social function. I think I can learn from its "team work" idea and adapt it to serve my "offline social" core goal. For example, in my app, users could form "Study Groups." When group members use the Bluetooth function to confirm they had an offline meeting, the whole group would get extra rewards. I think this will effectively motivate real study communication.
 
-2.2 Comparative Analysis of Other Apps
+## 2.2 Comparative Analysis of Other Apps
 
 This table summarizes the key insights learned from other relevant applications.
 
@@ -54,7 +50,7 @@ This table summarizes the key insights learned from other relevant applications.
 | Headspace | UI/UX Design & Mental Well-being Module | It primarily uses daily streaks and a calm, encouraging UI/UX to build a habit. | The simple, calm and intuitive interface is deeply loved by users, and it also has a simple operation logic. | Headspace is about passive content consumption (listening). Our app's core is to encourage active user behaviors (completing tasks, socializing). |
 | Duolingo | Gamification Engine (Leaderboards & Economy) | Its core loop is driven by a highly competitive weekly league system, daily streaks, and virtual currency (gems) used to purchase items such as "Streak Freeze". | The league-based leaderboard is the perfect model for our staged leaderboard system. The "Streak Freeze" is an excellent idea for our in-app "Credits" store. | The learning path is highly structured, which may make people feel monotonous and repetitive, and a bit boring. Our application needs to become a flexible toolbox. Its notification strategy might be overly aggressive. |
 
-2.3 Project's Position
+## 2.3 Project's Position
 
 After analyzing these successful applications, we can find that they are usually designed as universal tools for a broad audience. They lack specific attention to the lives of students.
 
@@ -64,7 +60,7 @@ After analyzing these successful applications, we can find that they are usually
 
 **Encouraging offline social interaction**: The key feature of this project lies in its innovative Bluetooth-based function, which rewards face-to-face interactions.
 
-1.  Technology Investigation
+# 3  Technology Investigation
 
 Here is a brief introduction of the specific tools I chose and the reasons for their selection:
 
@@ -80,11 +76,11 @@ Here is a brief introduction of the specific tools I chose and the reasons for t
 
 **Version Control (Git and GitHub):** I will use Git and GitHub to save and manage all my code and documents. The specific operations will be carried out as needed.
 
-1.  Conclusion
+# 4  Conclusion
 
 This research document confirms the existence of market opportunities for gamified applications targeting student groups. Through the analysis of existing applications, it provides a solid foundation for the adoption and adaptation of mechanisms and functions that have been proven effective. Additionally, the selected technology stack offers strong support for the subsequent development of this app.
 
-Reference
+# Reference
 
 \[1\] Habitica. [https://habitica.com/](https://habitica.com/)
 
