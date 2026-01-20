@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/tasksFragment">
+    <fragment
+        android:id="@+id/tasksFragment"
+        android:name="com.example.meetmerit.TasksFragment"
+        android:label="Tasks"
+        tools:layout="@layout/fragment_tasks" />
+
+    <fragment
+        android:id="@+id/focusFragment"
+        android:name="com.example.meetmerit.FocusFragment"
+        android:label="Focus"
+        tools:layout="@layout/fragment_focus" />
+
+    <fragment
+        android:id="@+id/leaderboardFragment"
+        android:name="com.example.meetmerit.LeaderboardFragment"
+        android:label="Leaderboard"
+        tools:layout="@layout/fragment_leaderboard" />
+
+    <fragment
+        android:id="@+id/scanFragment"
+        android:name="com.example.meetmerit.ScanFragment"
+        android:label="Scan Device"
+        tools:layout="@layout/fragment_scan" />
+</navigation>

@@ -1,5 +1,8 @@
 package com.example.meetmerit
 
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -10,23 +13,23 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.POST
-
-data class LoginRequest(val username: String, val password: String)
-data class LoginResponse(val message: String, val user_id: Int, val username: String)
-
-interface ApiService {
-    @POST("api/login/")
-    suspend fun login(@Body request: LoginRequest): LoginResponse
-}
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+
+        val savedUserId = sharedPreferences.getInt("USER_ID", -1)
+        val savedUsername = sharedPreferences.getString("USERNAME", null)
+
+        if (savedUserId != -1 && savedUsername != null) {
+            goToHome(savedUserId, savedUsername)
+            return
+        }
+
         setContentView(R.layout.activity_main)
 
         val etUsername = findViewById<EditText>(R.id.etUsername)
@@ -34,26 +37,30 @@ class MainActivity : AppCompatActivity() {
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvResult = findViewById<TextView>(R.id.tvResult)
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8000/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val apiService = retrofit.create(ApiService::class.java)
-
         btnLogin.setOnClickListener {
             val username = etUsername.text.toString().trim()
             val password = etPassword.text.toString().trim()
+
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             tvResult.text = "Status: Connecting..."
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = apiService.login(LoginRequest(username, password))
+                    val response = RetrofitClient.instance.login(LoginRequest(username, password))
 
                     withContext(Dispatchers.Main) {
-                        tvResult.text = "Success! User ID: ${response.user_id}"
-                        Toast.makeText(applicationContext, "Login Successful!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext, "Welcome ${response.username}!", Toast.LENGTH_SHORT).show()
+
+                        val editor = sharedPreferences.edit()
+                        editor.putInt("USER_ID", response.user_id)
+                        editor.putString("USERNAME", response.username)
+                        editor.apply()
+
+                        goToHome(response.user_id, response.username)
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
@@ -63,5 +70,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun goToHome(userId: Int, username: String) {
+        val intent = Intent(this, HomeActivity::class.java)
+        intent.putExtra("USER_ID", userId)
+        intent.putExtra("USERNAME", username)
+        startActivity(intent)
+        finish()
     }
 }
