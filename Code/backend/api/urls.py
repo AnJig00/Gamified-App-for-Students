@@ -1,4 +1,6 @@
-from django.urls import path
+from django.urls import path, include
+
+from backend.api import admin
 from . import views
 from .views import LeaderboardView  
 
@@ -12,4 +14,7 @@ urlpatterns = [
     path('leaderboard/', LeaderboardView.as_view(), name='leaderboard'),
 
     path('focus/', views.add_focus_log, name='focus-log'),
+
+    path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
 ]
