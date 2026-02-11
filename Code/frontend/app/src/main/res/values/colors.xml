@@ -1,5 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Existing -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- ============================================== -->
+    <!-- Clean Light Theme – Soft Mint / Pastel Blue    -->
+    <!-- ============================================== -->
+
+    <!-- Primary (Mint Green) -->
+    <color name="md_primary">#FF4DB6AC</color>           <!-- Mint 400 -->
+    <color name="md_primary_variant">#FF00897B</color>    <!-- Darker mint for contrast -->
+    <color name="md_on_primary">#FFFFFFFF</color>         <!-- White text on primary -->
+
+    <!-- Primary Container (soft tint for chips, FABs) -->
+    <color name="md_primary_container">#FFB2DFDB</color>  <!-- Mint 100 -->
+    <color name="md_on_primary_container">#FF00413D</color>
+
+    <!-- Secondary (Pastel Blue) -->
+    <color name="md_secondary">#FF81D4FA</color>          <!-- Light Blue 200 -->
+    <color name="md_secondary_variant">#FF4FC3F7</color>
+    <color name="md_on_secondary">#FF003549</color>
+    <color name="md_secondary_container">#FFE1F5FE</color>
+    <color name="md_on_secondary_container">#FF002133</color>
+
+    <!-- Background & Surface -->
+    <color name="md_background">#FFF5F5F5</color>         <!-- Off-white -->
+    <color name="md_on_background">#FF333333</color>      <!-- Dark gray text -->
+    <color name="md_surface">#FFFFFFFF</color>            <!-- Pure white cards -->
+    <color name="md_on_surface">#FF333333</color>
+
+    <!-- Surface Variant (dividers, outlines) -->
+    <color name="md_surface_variant">#FFEEEEEE</color>
+    <color name="md_on_surface_variant">#FF666666</color>
+    <color name="md_outline">#FFBDBDBD</color>
+
+    <!-- Error -->
+    <color name="md_error">#FFE57373</color>              <!-- Soft red -->
+    <color name="md_on_error">#FFFFFFFF</color>
+    <color name="md_error_container">#FFFCE4EC</color>
+    <color name="md_on_error_container">#FF5F2120</color>
+
+    <!-- Bottom Nav / Status Bar -->
+    <color name="md_surface_container">#FFFAFAFA</color>
+    <color name="md_status_bar">#FFE0F2F1</color>        <!-- Very light mint -->
+
+    <!-- Leaderboard Medals -->
+    <color name="md_medal_gold">#FFFFD54F</color>         <!-- Amber 300 -->
+    <color name="md_medal_silver">#FFE0E0E0</color>       <!-- Grey 300 -->
+    <color name="md_medal_bronze">#FFFFAB91</color>       <!-- Deep Orange 200 -->
+    <color name="md_medal_gold_text">#FF795548</color>
+    <color name="md_medal_silver_text">#FF616161</color>
+    <color name="md_medal_bronze_text">#FF5D4037</color>
 </resources>

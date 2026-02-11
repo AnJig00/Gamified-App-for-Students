@@ -1,14 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LeaderboardFragment">
+    android:background="@color/md_background">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <!-- ==================== Header Card ==================== -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardLeaderboardHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/md_primary"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:strokeWidth="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-</FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <!-- Trophy icon -->
+            <TextView
+                android:id="@+id/tvTrophy"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_rank_circle"
+                android:backgroundTint="#44FFFFFF"
+                android:gravity="center"
+                android:text="🏆"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvLeagueTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:fontFamily="sans-serif-bold"
+                android:text="Weekly League"
+                android:textColor="@color/md_on_primary"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvTrophy"
+                app:layout_constraintTop_toTopOf="@id/tvTrophy" />
+
+            <TextView
+                android:id="@+id/tvLeagueSubtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="2dp"
+                android:fontFamily="sans-serif"
+                android:text="Top 10 students ranked by XP"
+                android:textColor="#CCFFFFFF"
+                android:textSize="13sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvTrophy"
+                app:layout_constraintTop_toBottomOf="@id/tvLeagueTitle" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ==================== Rankings List ==================== -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvLeaderboard"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"
+        app:layout_constraintBottom_toTopOf="@id/cardMyRank"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardLeaderboardHeader" />
+
+    <!-- ==================== Loading Spinner ==================== -->
+    <ProgressBar
+        android:id="@+id/progressBarLeaderboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/md_primary"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rvLeaderboard"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/rvLeaderboard" />
+
+    <!-- ==================== "My Rank" Card (anchored at bottom) ==================== -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardMyRank"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="12dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/md_surface"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:strokeColor="@color/md_primary"
+        app:strokeWidth="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- "Your Rank" label -->
+            <TextView
+                android:id="@+id/tvMyRankLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:text="Your Rank"
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="11sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Rank number -->
+            <TextView
+                android:id="@+id/tvMyRankPosition"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_rank_circle"
+                android:backgroundTint="@color/md_primary_container"
+                android:fontFamily="sans-serif-bold"
+                android:gravity="center"
+                android:textColor="@color/md_on_primary_container"
+                android:textSize="16sp"
+                tools:text="4"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvMyRankLabel" />
+
+            <!-- Username -->
+            <TextView
+                android:id="@+id/tvMyRankUsername"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/md_on_surface"
+                android:textSize="16sp"
+                tools:text="You"
+                app:layout_constraintBottom_toBottomOf="@id/tvMyRankPosition"
+                app:layout_constraintEnd_toStartOf="@id/tvMyRankXp"
+                app:layout_constraintStart_toEndOf="@id/tvMyRankPosition"
+                app:layout_constraintTop_toTopOf="@id/tvMyRankPosition" />
+
+            <!-- XP -->
+            <TextView
+                android:id="@+id/tvMyRankXp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-bold"
+                android:textColor="@color/md_primary"
+                android:textSize="16sp"
+                tools:text="120 XP"
+                app:layout_constraintBottom_toBottomOf="@id/tvMyRankPosition"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvMyRankPosition" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

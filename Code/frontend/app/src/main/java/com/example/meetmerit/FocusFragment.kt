@@ -8,11 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,20 +21,25 @@ import kotlinx.coroutines.withContext
 
 class FocusFragment : Fragment() {
 
+    // ── Existing view references (IDs preserved) ──
     private lateinit var tvTimer: TextView
     private lateinit var btnStart: Button
     private lateinit var btnStop: Button
-    private lateinit var seekBar: SeekBar
     private lateinit var tvSelectedTime: TextView
     private lateinit var layoutSelector: LinearLayout
-    private lateinit var btnConnect: Button
 
+    // ── New view references ──
+    private lateinit var circularProgress: CircularProgressIndicator
+    private lateinit var chipGroup: ChipGroup
+
+    // ── Timer state ──
     private var timer: CountDownTimer? = null
     private var isTimerRunning = false
     private var currentUserId: Int = -1
 
     private var selectedMinutes: Int = 25
-    private var timeLeftInMillis: Long = 25 * 60 * 1000
+    private var timeLeftInMillis: Long = 25 * 60 * 1000L
+    private var totalTimeInMillis: Long = 25 * 60 * 1000L
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -43,66 +48,65 @@ class FocusFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_focus, container, false)
 
+        // ── Bind existing IDs ──
         tvTimer = view.findViewById(R.id.tvTimer)
         btnStart = view.findViewById(R.id.btnStartFocus)
         btnStop = view.findViewById(R.id.btnStopFocus)
-        seekBar = view.findViewById(R.id.seekBarTime)
         tvSelectedTime = view.findViewById(R.id.tvSelectedTime)
         layoutSelector = view.findViewById(R.id.layoutTimeSelector)
-        btnConnect = view.findViewById(R.id.btnConnectDevice)
+
+        // ── Bind new IDs ──
+        circularProgress = view.findViewById(R.id.circularProgress)
+        chipGroup = view.findViewById(R.id.chipGroupDuration)
 
         currentUserId = activity?.intent?.getIntExtra("USER_ID", -1) ?: -1
 
-        btnConnect.setOnClickListener {
-            try {
-                findNavController().navigate(R.id.scanFragment)
-            } catch (e: Exception) {
-                Toast.makeText(context, "Nav Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                e.printStackTrace()
+        // ── ChipGroup duration selection (replaces SeekBar) ──
+        chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                selectedMinutes = when (checkedIds.first()) {
+                    R.id.chip25 -> 25
+                    R.id.chip45 -> 45
+                    R.id.chip60 -> 60
+                    else -> 25
+                }
+                timeLeftInMillis = selectedMinutes * 60 * 1000L
+                totalTimeInMillis = timeLeftInMillis
+                updateCountDownText()
+                circularProgress.setProgressCompat(100, true)
             }
         }
 
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                var minutes = progress
-                if (minutes < 1) minutes = 1
+        // ── Init circular progress (full ring = idle state) ──
+        circularProgress.max = 100
+        circularProgress.progress = 100
 
-                selectedMinutes = minutes
-
-                tvSelectedTime.text = "Set Duration: $minutes min"
-
-                tvTimer.text = String.format(Locale.US, "%02d:00", minutes)
-
-                timeLeftInMillis = minutes * 60 * 1000L
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-
-        btnStart.setOnClickListener {
-            startTimer()
-        }
-
-        btnStop.setOnClickListener {
-            stopTimer()
-        }
+        // ── Button listeners ──
+        btnStart.setOnClickListener { startTimer() }
+        btnStop.setOnClickListener { stopTimer() }
 
         updateCountDownText()
         return view
     }
 
+    // ────────────────────────────────────────────────────────
+    // State 2 → Running
+    // ────────────────────────────────────────────────────────
     private fun startTimer() {
+        totalTimeInMillis = selectedMinutes * 60 * 1000L
+
         timer = object : CountDownTimer(timeLeftInMillis, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 timeLeftInMillis = millisUntilFinished
                 updateCountDownText()
+                updateCircularProgress()
             }
 
             override fun onFinish() {
                 isTimerRunning = false
                 timeLeftInMillis = 0
                 updateCountDownText()
+                circularProgress.setProgressCompat(0, true)
 
                 submitFocusSession()
                 resetTimerUI()
@@ -110,12 +114,19 @@ class FocusFragment : Fragment() {
         }.start()
 
         isTimerRunning = true
+
+        // UI → Running state
         btnStart.visibility = View.GONE
         btnStop.visibility = View.VISIBLE
         layoutSelector.visibility = View.GONE
-        btnConnect.visibility = View.GONE
+
+        // Hide bottom navigation for an immersive focus experience
+        (activity as? HomeActivity)?.setBottomNavVisibility(false)
     }
 
+    // ────────────────────────────────────────────────────────
+    // Give Up → back to Idle
+    // ────────────────────────────────────────────────────────
     private fun stopTimer() {
         timer?.cancel()
         isTimerRunning = false
@@ -125,24 +136,43 @@ class FocusFragment : Fragment() {
         Toast.makeText(context, "Focus session cancelled", Toast.LENGTH_SHORT).show()
     }
 
+    // ────────────────────────────────────────────────────────
+    // State 1 → Idle  (reset everything)
+    // ────────────────────────────────────────────────────────
     @SuppressLint("SetTextI18n")
     private fun resetTimerUI() {
         btnStart.visibility = View.VISIBLE
         btnStop.visibility = View.GONE
         layoutSelector.visibility = View.VISIBLE
-        btnConnect.visibility = View.VISIBLE
+
         timeLeftInMillis = selectedMinutes * 60 * 1000L
+        totalTimeInMillis = timeLeftInMillis
+        circularProgress.setProgressCompat(100, true)
         updateCountDownText()
+
+        // Restore bottom navigation
+        (activity as? HomeActivity)?.setBottomNavVisibility(true)
     }
 
+    // ────────────────────────────────────────────────────────
+    // Update helpers
+    // ────────────────────────────────────────────────────────
     private fun updateCountDownText() {
         val minutes = (timeLeftInMillis / 1000) / 60
         val seconds = (timeLeftInMillis / 1000) % 60
-
-        val timeFormatted = String.format(Locale.US, "%02d:%02d", minutes, seconds)
-        tvTimer.text = timeFormatted
+        tvTimer.text = String.format(Locale.US, "%02d:%02d", minutes, seconds)
     }
 
+    private fun updateCircularProgress() {
+        if (totalTimeInMillis > 0) {
+            val progress = (timeLeftInMillis * 100 / totalTimeInMillis).toInt()
+            circularProgress.setProgressCompat(progress, true)
+        }
+    }
+
+    // ────────────────────────────────────────────────────────
+    // Submit XP to backend (unchanged logic)
+    // ────────────────────────────────────────────────────────
     private fun submitFocusSession() {
         if (currentUserId == -1) return
         val minutesToSend = if (selectedMinutes < 1) 1 else selectedMinutes
@@ -161,9 +191,19 @@ class FocusFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Network Error: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
+    }
+
+    // ────────────────────────────────────────────────────────
+    // Cleanup — cancel timer & restore nav if fragment is destroyed
+    // ────────────────────────────────────────────────────────
+    override fun onDestroyView() {
+        super.onDestroyView()
+        timer?.cancel()
+        (activity as? HomeActivity)?.setBottomNavVisibility(true)
     }
 }

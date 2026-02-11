@@ -1,29 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/md_background">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTasks"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <!-- ==================== Scrollable Content ==================== -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
         android:clipToPadding="false"
-        android:paddingBottom="80dp"/> <ProgressBar
-    android:id="@+id/progressBar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:visibility="gone"/>
+        android:paddingBottom="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ==================== Player Stats Header ==================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPlayerStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                app:cardBackgroundColor="@color/md_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <!-- Greeting -->
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/md_on_surface"
+                        android:textSize="20sp"
+                        tools:text="Hi, Student"
+                        app:layout_constraintEnd_toStartOf="@+id/chipLevel"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!-- Level Badge -->
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipLevel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lvl 1"
+                        android:textColor="@color/md_on_primary_container"
+                        android:textSize="12sp"
+                        app:chipBackgroundColor="@color/md_primary_container"
+                        app:chipCornerRadius="20dp"
+                        app:chipMinHeight="28dp"
+                        app:chipStrokeWidth="0dp"
+                        app:ensureMinTouchTargetSize="false"
+                        app:layout_constraintBottom_toBottomOf="@id/tvGreeting"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvGreeting"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+                    <!-- XP Label -->
+                    <TextView
+                        android:id="@+id/tvXpLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="13sp"
+                        tools:text="0 / 100 XP"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvGreeting" />
+
+                    <!-- XP Progress Bar -->
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/xpProgressBar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:progress="0"
+                        app:indicatorColor="@color/md_primary"
+                        app:trackColor="@color/md_surface_variant"
+                        app:trackCornerRadius="4dp"
+                        app:trackThickness="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvXpLabel" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ==================== Active Section Title ==================== -->
+            <TextView
+                android:id="@+id/tvSectionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="20dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="My Tasks"
+                android:textColor="@color/md_on_background"
+                android:textSize="16sp" />
+
+            <!-- ==================== Incomplete Task List ==================== -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTasksIncomplete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false" />
+
+            <!-- ==================== Empty state for active tasks ==================== -->
+            <TextView
+                android:id="@+id/tvEmptyActive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="sans-serif"
+                android:gravity="center"
+                android:text="No active tasks — tap + to add one"
+                android:textColor="@color/md_outline"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <!-- ==================== Completed Section Header ==================== -->
+            <TextView
+                android:id="@+id/tvHeaderCompleted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="20dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Completed"
+                android:textColor="@color/md_on_background"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <!-- ==================== Completed Task List ==================== -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTasksCompleted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ==================== Loading Spinner (EXISTING ID: progressBar) ==================== -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/md_primary"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- ==================== Add Task FAB (EXISTING ID: fabAddTask) ==================== -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddTask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
+        android:contentDescription="Add Task"
         android:src="@android:drawable/ic_input_add"
-        app:tint="@android:color/white"
-        android:contentDescription="Add Task" />
+        app:backgroundTint="@color/md_primary"
+        app:tint="@color/md_on_primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

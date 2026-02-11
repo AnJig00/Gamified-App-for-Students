@@ -1,8 +1,8 @@
 package com.example.meetmerit
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,6 +47,8 @@ class ScanFragment : Fragment() {
             }
         }
 
+    // --- 修复点 1：给 onCreateView 加上注解，解决第 66 行 device.name 的报错 ---
+    @SuppressLint("MissingPermission")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,8 +63,11 @@ class ScanFragment : Fragment() {
         bluetoothAdapter = bluetoothManager.adapter
 
         rvDevices.layoutManager = LinearLayoutManager(context)
+
+        // 这里就是第 66 行左右的点击事件
         deviceAdapter = DeviceAdapter(mutableListOf()) { device ->
-            Toast.makeText(context, "Clicked: ${device.name}", Toast.LENGTH_SHORT).show()
+            // 因为上面加了 @SuppressLint，这里访问 device.name 就不会报错了
+            Toast.makeText(context, "Selected: ${device.name ?: "Unknown"}", Toast.LENGTH_SHORT).show()
             stopBleScan()
         }
         rvDevices.adapter = deviceAdapter
@@ -75,7 +81,6 @@ class ScanFragment : Fragment() {
 
     private fun checkPermissionsAndScan() {
         val permissionsToRequest = mutableListOf<String>()
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permissionsToRequest.add(Manifest.permission.BLUETOOTH_SCAN)
             permissionsToRequest.add(Manifest.permission.BLUETOOTH_CONNECT)
@@ -94,6 +99,7 @@ class ScanFragment : Fragment() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun startBleScan() {
         if (bluetoothAdapter == null || !bluetoothAdapter!!.isEnabled) {
             Toast.makeText(context, "Please enable Bluetooth first", Toast.LENGTH_SHORT).show()
@@ -102,45 +108,57 @@ class ScanFragment : Fragment() {
 
         if (isScanning) return
 
-        Toast.makeText(context, "Scanning for Movesense...", Toast.LENGTH_SHORT).show()
-        isScanning = true
-        progressBar.visibility = View.VISIBLE
-        btnScan.text = "Scanning..."
-        btnScan.isEnabled = false
-
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                return
+            }
+        } else {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return
+            }
         }
 
-        bluetoothAdapter?.bluetoothLeScanner?.startScan(leScanCallback)
+        try {
+            Toast.makeText(context, "Scanning...", Toast.LENGTH_SHORT).show()
+            isScanning = true
+            progressBar.visibility = View.VISIBLE
+            btnScan.text = "Scanning..."
+            btnScan.isEnabled = false
 
-        handler.postDelayed({
-            stopBleScan()
-        }, SCAN_PERIOD)
+            bluetoothAdapter?.bluetoothLeScanner?.startScan(leScanCallback)
+
+            handler.postDelayed({
+                stopBleScan()
+            }, SCAN_PERIOD)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
+    @SuppressLint("MissingPermission")
     private fun stopBleScan() {
         if (!isScanning) return
 
-        isScanning = false
-        progressBar.visibility = View.GONE
-        btnScan.text = "Start Scan"
-        btnScan.isEnabled = true
+        try {
+            isScanning = false
+            progressBar.visibility = View.GONE
+            btnScan.text = "Start Scan"
+            btnScan.isEnabled = true
 
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return
+            bluetoothAdapter?.bluetoothLeScanner?.stopScan(leScanCallback)
+            Toast.makeText(context, "Scan stopped", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
         }
-        bluetoothAdapter?.bluetoothLeScanner?.stopScan(leScanCallback)
-        Toast.makeText(context, "Scan stopped", Toast.LENGTH_SHORT).show()
     }
 
     private val leScanCallback = object : ScanCallback() {
+        @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device
+            val rssi = result.rssi
 
-            if (device != null) {
+            if (rssi > -90) {
+                Log.d("ScanDebug", "Found: ${device.name} | MAC: ${device.address} | RSSI: $rssi")
                 activity?.runOnUiThread {
                     deviceAdapter.addDevice(device)
                 }

@@ -1,27 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/md_background">
 
-    <Button
-        android:id="@+id/btnStartScan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start Scan" />
+    <!-- ==================== Header ==================== -->
 
-    <ProgressBar
-        android:id="@+id/progressScan"
+    <TextView
+        android:id="@+id/tvSocialTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Social"
+        android:textColor="@color/md_on_background"
+        android:textSize="22sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tvSocialSubtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="24dp"
+        android:fontFamily="sans-serif"
+        android:text="Find nearby classmates to earn XP!"
+        android:textColor="@color/md_on_surface_variant"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSocialTitle" />
+
+    <!-- ==================== Radar / Scan Area ==================== -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardScanArea"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/md_surface"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSocialSubtitle">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
+
+            <!-- Radar icon -->
+            <TextView
+                android:id="@+id/tvRadarIcon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_rank_circle"
+                android:backgroundTint="@color/md_primary_container"
+                android:gravity="center"
+                android:text="📡"
+                android:textSize="28sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Scanning spinner — overlays the radar icon when active -->
+            <!-- EXISTING ID: progressScan -->
+            <ProgressBar
+                android:id="@+id/progressScan"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:indeterminateTint="@color/md_primary"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/tvRadarIcon"
+                app:layout_constraintEnd_toEndOf="@id/tvRadarIcon"
+                app:layout_constraintStart_toStartOf="@id/tvRadarIcon"
+                app:layout_constraintTop_toTopOf="@id/tvRadarIcon"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tvScanHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans-serif"
+                android:text="Tap to search for nearby students"
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="13sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvRadarIcon" />
+
+            <!-- EXISTING ID: btnStartScan -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStartScan"
+                android:layout_width="200dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:text="Start Scan"
+                android:textSize="15sp"
+                app:backgroundTint="@color/md_primary"
+                app:cornerRadius="24dp"
+                app:icon="@android:drawable/stat_sys_data_bluetooth"
+                app:iconGravity="textStart"
+                app:iconSize="18dp"
+                app:iconTint="@color/md_on_primary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvScanHint" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ==================== Section Label ==================== -->
+    <TextView
+        android:id="@+id/tvNearbyLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Nearby Students"
+        android:textColor="@color/md_on_background"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardScanArea" />
+
+    <!-- ==================== Empty State ==================== -->
+    <TextView
+        android:id="@+id/tvEmptyState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:fontFamily="sans-serif"
+        android:text="No students found yet"
+        android:textColor="@color/md_outline"
+        android:textSize="14sp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvNearbyLabel" />
+
+    <!-- ==================== Device List ==================== -->
+    <!-- EXISTING ID: rvDevices -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDevices"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp"/>
-</LinearLayout>
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvNearbyLabel" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

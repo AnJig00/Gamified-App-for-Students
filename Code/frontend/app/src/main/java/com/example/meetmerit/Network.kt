@@ -15,7 +15,8 @@ data class LoginResponse(val message: String, val user_id: Int, val username: St
 data class Task(
     val id: Int,
     val title: String,
-    val is_completed: Boolean
+    val is_completed: Boolean,
+    val due_date: String? = null
 )
 
 data class LeaderboardEntry(
@@ -58,8 +59,8 @@ interface ApiService {
 
 
 object RetrofitClient {
-    private const val BASE_URL = "http://192.168.1.12:8000/"
-
+    //private const val BASE_URL = "http://10.0.2.2:8000/"  // Virtual
+    private const val BASE_URL = "https://meet-merit-app-fc548669a22d.herokuapp.com/"   //Real
     val instance: ApiService by lazy {
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)

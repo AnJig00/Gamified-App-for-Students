@@ -10,9 +10,10 @@ class Student(AbstractUser):
         return self.username
 
 class Task(models.Model):
-    user = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='tasks') # 关联到用户
-    title = models.CharField(max_length=255) 
-    is_completed = models.BooleanField(default=False) 
+    user = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='tasks')
+    title = models.CharField(max_length=255)
+    is_completed = models.BooleanField(default=False)
+    due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True) 
 
     def __str__(self):

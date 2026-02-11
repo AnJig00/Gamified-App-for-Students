@@ -1,15 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
-        android:id="@+id/tasksFragment"
-        android:title="Tasks"
-        android:icon="@android:drawable/ic_menu_agenda" />
+        android:id="@+id/navigation_tasks"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="Tasks" />
+
     <item
-        android:id="@+id/focusFragment"
-        android:title="Focus"
-        android:icon="@android:drawable/ic_menu_recent_history" />
+        android:id="@+id/navigation_focus"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="Focus" />
+
     <item
-        android:id="@+id/leaderboardFragment"
-        android:title="Rank"
-        android:icon="@android:drawable/ic_menu_sort_by_size" />
+        android:id="@+id/navigation_scan"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="Social" />
+
+    <item
+        android:id="@+id/navigation_leaderboard"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="Rank" />
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:title="Profile" />
+
 </menu>
