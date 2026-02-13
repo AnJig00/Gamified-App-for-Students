@@ -6,15 +6,27 @@ class Student(AbstractUser):
     level = models.IntegerField(default=1)
     credits = models.IntegerField(default=0)
 
-    def __str__(self):
-        return self.username
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='student_set',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        verbose_name='groups',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='student_set',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+    )
 
 class Task(models.Model):
-    user = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='tasks')
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=200)
     is_completed = models.BooleanField(default=False)
-    due_date = models.DateField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True) 
+    created_at = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateTimeField(null=True, blank=True)
+    user = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='tasks')
 
     def __str__(self):
         return self.title
