@@ -34,7 +34,6 @@
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
-            <!-- Target icon -->
             <TextView
                 android:layout_width="56dp"
                 android:layout_height="56dp"
@@ -46,7 +45,6 @@
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
-            <!-- People icon -->
             <TextView
                 android:layout_width="56dp"
                 android:layout_height="56dp"
@@ -60,7 +58,6 @@
 
         </LinearLayout>
 
-        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,7 +68,6 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- Subtitle -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

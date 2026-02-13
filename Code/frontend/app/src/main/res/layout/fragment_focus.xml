@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/md_background">
 
-    <!-- ==================== Top Bar ==================== -->
 
     <TextView
         android:id="@+id/tvFocusTitle"
@@ -22,9 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- ==================== Circular Timer (center area) ==================== -->
 
-    <!-- NEW: Circular progress ring -->
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/circularProgress"
         android:layout_width="wrap_content"
@@ -43,7 +40,6 @@
         app:layout_constraintVertical_bias="0.42"
         app:layout_constraintVertical_chainStyle="packed" />
 
-    <!-- EXISTING ID: tvTimer — overlaid in the center of the ring -->
     <TextView
         android:id="@+id/tvTimer"
         android:layout_width="wrap_content"
@@ -57,7 +53,6 @@
         app:layout_constraintStart_toStartOf="@id/circularProgress"
         app:layout_constraintTop_toTopOf="@id/circularProgress" />
 
-    <!-- NEW: XP hint beneath the ring -->
     <TextView
         android:id="@+id/tvXpHint"
         android:layout_width="wrap_content"
@@ -71,8 +66,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/circularProgress" />
 
-    <!-- ==================== Duration Selector ==================== -->
-    <!-- EXISTING ID: layoutTimeSelector — hides as a group during running state -->
     <LinearLayout
         android:id="@+id/layoutTimeSelector"
         android:layout_width="wrap_content"
@@ -84,7 +77,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvXpHint">
 
-        <!-- EXISTING ID: tvSelectedTime -->
         <TextView
             android:id="@+id/tvSelectedTime"
             android:layout_width="wrap_content"
@@ -95,7 +87,6 @@
             android:textColor="@color/md_on_surface_variant"
             android:textSize="14sp" />
 
-        <!-- NEW: ChipGroup replaces the SeekBar -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupDuration"
             android:layout_width="wrap_content"
@@ -144,8 +135,6 @@
         </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
 
-    <!-- EXISTING ID (kept for Kotlin compatibility but no longer used): seekBarTime -->
-    <!-- Hidden placeholder so any legacy reference won't crash -->
     <SeekBar
         android:id="@+id/seekBarTime"
         android:layout_width="0dp"
@@ -156,9 +145,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- ==================== Action Buttons ==================== -->
-
-    <!-- EXISTING ID: btnStartFocus -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStartFocus"
         android:layout_width="220dp"
@@ -172,7 +158,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- EXISTING ID: btnStopFocus -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStopFocus"
         style="@style/Widget.Material3.Button.OutlinedButton"

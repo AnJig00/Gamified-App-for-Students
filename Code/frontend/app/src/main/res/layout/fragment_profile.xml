@@ -1,437 +1,427 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:background="@color/md_background">
 
-    <!-- ==================== Header ==================== -->
-
-    <TextView
-        android:id="@+id/tvProfileTitle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="Profile"
-        android:textColor="@color/md_on_background"
-        android:textSize="22sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical">
 
-    <!-- ==================== Avatar Card ==================== -->
+        <!-- ==================== Header ==================== -->
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardAvatar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="@color/md_surface"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvProfileTitle">
+        <TextView
+            android:id="@+id/tvProfileTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Profile"
+            android:textColor="@color/md_on_background"
+            android:textSize="22sp" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- ==================== Avatar Card ==================== -->
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAvatar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="28dp"
-            android:paddingBottom="24dp">
-
-            <!-- Circular avatar -->
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivProfileAvatar"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:background="@color/md_primary_container"
-                android:padding="16dp"
-                android:scaleType="centerInside"
-                android:src="@android:drawable/sym_def_app_icon"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <!-- EXISTING ID: tv_username -->
-            <TextView
-                android:id="@+id/tv_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/md_on_surface"
-                android:textSize="20sp"
-                tools:text="john_doe"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ivProfileAvatar" />
-
-            <!-- Email / subtitle -->
-            <TextView
-                android:id="@+id/tvProfileEmail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/md_on_surface_variant"
-                android:textSize="13sp"
-                tools:text="Keep learning, keep growing!"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_username" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- ==================== Stats Row ==================== -->
-
-    <TextView
-        android:id="@+id/tvStatsLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="20dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="My Stats"
-        android:textColor="@color/md_on_background"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardAvatar" />
-
-    <LinearLayout
-        android:id="@+id/layoutStatsRow"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="16dp"
-        android:orientation="horizontal"
-        android:weightSum="3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvStatsLabel">
-
-        <!-- Total XP card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="16dp"
             app:cardBackgroundColor="@color/md_surface"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
             app:strokeWidth="0dp">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="14dp">
+                android:paddingTop="28dp"
+                android:paddingBottom="24dp">
 
+                <!-- Circular avatar -->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivProfileAvatar"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:background="@color/md_primary_container"
+                    android:padding="16dp"
+                    android:scaleType="centerInside"
+                    android:src="@android:drawable/sym_def_app_icon"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- EXISTING ID: tv_username -->
                 <TextView
+                    android:id="@+id/tv_username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🏆"
-                    android:textSize="22sp" />
-
-                <TextView
-                    android:id="@+id/tvStatXpValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif-bold"
+                    android:layout_marginTop="14dp"
+                    android:fontFamily="sans-serif-medium"
                     android:textColor="@color/md_on_surface"
-                    android:textSize="18sp"
-                    tools:text="1200" />
+                    android:textSize="20sp"
+                    tools:text="john_doe"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/ivProfileAvatar" />
 
+                <!-- Email / subtitle -->
                 <TextView
+                    android:id="@+id/tvProfileEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif"
-                    android:text="Total XP"
                     android:textColor="@color/md_on_surface_variant"
-                    android:textSize="11sp" />
-            </LinearLayout>
+                    android:textSize="13sp"
+                    tools:text="Keep learning, keep growing!"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_username" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Level card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
+        <!-- ==================== Stats Row ==================== -->
+
+        <TextView
+            android:id="@+id/tvStatsLabel"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="6dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@color/md_surface"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="⭐"
-                    android:textSize="22sp" />
-
-                <TextView
-                    android:id="@+id/tvStatLevelValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:textColor="@color/md_on_surface"
-                    android:textSize="18sp"
-                    tools:text="5" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="sans-serif"
-                    android:text="Level"
-                    android:textColor="@color/md_on_surface_variant"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Rank card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@color/md_surface"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🥇"
-                    android:textSize="22sp" />
-
-                <TextView
-                    android:id="@+id/tvStatRankValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:textColor="@color/md_on_surface"
-                    android:textSize="18sp"
-                    tools:text="#3" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:fontFamily="sans-serif"
-                    android:text="Rank"
-                    android:textColor="@color/md_on_surface_variant"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
-
-    <!-- ==================== Badges Section ==================== -->
-
-    <TextView
-        android:id="@+id/tvBadgesLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="20dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="Earned Badges"
-        android:textColor="@color/md_on_background"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutStatsRow" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardBadges"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="@color/md_surface"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="1dp"
-        app:strokeWidth="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvBadgesLabel">
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="My Stats"
+            android:textColor="@color/md_on_background"
+            android:textSize="16sp" />
 
         <LinearLayout
+            android:id="@+id/layoutStatsRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="16dp"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:weightSum="3">
 
-            <!-- Badge 1: First Task -->
-            <LinearLayout
-                android:id="@+id/badgeFirstTask"
+            <!-- Total XP card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                app:cardBackgroundColor="@color/md_surface"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
 
-                <TextView
-                    android:id="@+id/tvBadge1Icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_rank_circle"
-                    android:backgroundTint="@color/md_surface_variant"
-                    android:gravity="center"
-                    android:text="📝"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif"
-                    android:text="First Task"
-                    android:textColor="@color/md_on_surface_variant"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="14dp">
 
-            <!-- Badge 2: Focus Pro -->
-            <LinearLayout
-                android:id="@+id/badgeFocusPro"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="\uD83C\uDFC6"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatXpValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:textColor="@color/md_on_surface"
+                        android:textSize="18sp"
+                        tools:text="1200" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Total XP"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Level card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
                 android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                app:cardBackgroundColor="@color/md_surface"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
 
-                <TextView
-                    android:id="@+id/tvBadge2Icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_rank_circle"
-                    android:backgroundTint="@color/md_surface_variant"
-                    android:gravity="center"
-                    android:text="🧘"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif"
-                    android:text="Focus Pro"
-                    android:textColor="@color/md_on_surface_variant"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="14dp">
 
-            <!-- Badge 3: Social Bee -->
-            <LinearLayout
-                android:id="@+id/badgeSocialBee"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="\u2B50"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatLevelValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:textColor="@color/md_on_surface"
+                        android:textSize="18sp"
+                        tools:text="5" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Level"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Rank card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
                 android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                app:cardBackgroundColor="@color/md_surface"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
 
-                <TextView
-                    android:id="@+id/tvBadge3Icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_rank_circle"
-                    android:backgroundTint="@color/md_surface_variant"
-                    android:gravity="center"
-                    android:text="🤝"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif"
-                    android:text="Social Bee"
-                    android:textColor="@color/md_on_surface_variant"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="14dp">
 
-            <!-- Badge 4: Top 10 -->
-            <LinearLayout
-                android:id="@+id/badgeTop10"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="\uD83E\uDD47"
+                        android:textSize="22sp" />
 
-                <TextView
-                    android:id="@+id/tvBadge4Icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_rank_circle"
-                    android:backgroundTint="@color/md_surface_variant"
-                    android:gravity="center"
-                    android:text="🏅"
-                    android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/tvStatRankValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-bold"
+                        android:textColor="@color/md_on_surface"
+                        android:textSize="18sp"
+                        tools:text="#3" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif"
-                    android:text="Top 10"
-                    android:textColor="@color/md_on_surface_variant"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Rank"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <!-- ==================== Logout Button ==================== -->
+        <!-- ==================== Badges Section ==================== -->
 
-    <!-- EXISTING ID: btn_logout -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_logout"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginTop="28dp"
-        android:text="Log Out"
-        android:textColor="@color/md_error"
-        android:textSize="14sp"
-        app:icon="@android:drawable/ic_lock_power_off"
-        app:iconGravity="textStart"
-        app:iconSize="18dp"
-        app:iconTint="@color/md_error"
-        app:rippleColor="@color/md_error_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardBadges" />
+        <TextView
+            android:id="@+id/tvBadgesLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Earned Badges"
+            android:textColor="@color/md_on_background"
+            android:textSize="16sp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardBadges"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="16dp"
+            app:cardBackgroundColor="@color/md_surface"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="1dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <!-- Badge 1: First Task -->
+                <LinearLayout
+                    android:id="@+id/badgeFirstTask"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvBadge1Icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_rank_circle"
+                        android:backgroundTint="@color/md_surface_variant"
+                        android:gravity="center"
+                        android:text="\uD83D\uDCDD"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif"
+                        android:text="First Task"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Badge 2: Focus Pro -->
+                <LinearLayout
+                    android:id="@+id/badgeFocusPro"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvBadge2Icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_rank_circle"
+                        android:backgroundTint="@color/md_surface_variant"
+                        android:gravity="center"
+                        android:text="\uD83E\uDDD8"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Focus Pro"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Badge 3: Social Bee -->
+                <LinearLayout
+                    android:id="@+id/badgeSocialBee"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvBadge3Icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_rank_circle"
+                        android:backgroundTint="@color/md_surface_variant"
+                        android:gravity="center"
+                        android:text="\uD83E\uDD1D"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Social Bee"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Badge 4: Top 10 -->
+                <LinearLayout
+                    android:id="@+id/badgeTop10"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvBadge4Icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_rank_circle"
+                        android:backgroundTint="@color/md_surface_variant"
+                        android:gravity="center"
+                        android:text="\uD83C\uDFC5"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif"
+                        android:text="Top 10"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ==================== Logout Button ==================== -->
+
+        <!-- EXISTING ID: btn_logout -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_logout"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="24dp"
+            android:text="Log Out"
+            android:textColor="@color/md_error"
+            android:textSize="14sp"
+            app:icon="@android:drawable/ic_lock_power_off"
+            app:iconGravity="textStart"
+            app:iconSize="18dp"
+            app:iconTint="@color/md_error"
+            app:rippleColor="@color/md_error_container" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

@@ -38,7 +38,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    /** Called by FocusFragment to hide/show bottom nav during a focus session. */
     fun setBottomNavVisibility(visible: Boolean) {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNav.visibility = if (visible) View.VISIBLE else View.GONE
