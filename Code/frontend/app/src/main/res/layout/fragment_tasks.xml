@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/md_background">
+    android:background="@drawable/bg_gradient_tasks">
 
     <!-- ==================== Scrollable Content ==================== -->
     <androidx.core.widget.NestedScrollView
@@ -34,75 +34,69 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 app:cardBackgroundColor="@color/md_surface"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 app:strokeWidth="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <!-- Greeting -->
+                    <!-- Greeting (large, bold) -->
                     <TextView
                         android:id="@+id/tvGreeting"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/md_on_surface"
-                        android:textSize="20sp"
-                        tools:text="Hi, Student"
-                        app:layout_constraintEnd_toStartOf="@+id/chipLevel"
-                        app:layout_constraintHorizontal_bias="0"
+                        android:fontFamily="sans-serif-black"
+                        android:textColor="#1A1A2E"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        tools:text="Hi, Student \uD83D\uDC4B"
+                        app:layout_constraintEnd_toStartOf="@+id/btnCalendar"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!-- Level Badge -->
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipLevel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lvl 1"
-                        android:textColor="@color/md_on_primary_container"
-                        android:textSize="12sp"
-                        app:chipBackgroundColor="@color/md_primary_container"
-                        app:chipCornerRadius="20dp"
-                        app:chipMinHeight="28dp"
-                        app:chipStrokeWidth="0dp"
-                        app:ensureMinTouchTargetSize="false"
-                        app:layout_constraintBottom_toBottomOf="@id/tvGreeting"
+                    <!-- Calendar / Timetable button -->
+                    <ImageButton
+                        android:id="@+id/btnCalendar"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Calendar"
+                        android:scaleType="centerInside"
+                        android:src="@android:drawable/ic_menu_my_calendar"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/tvGreeting"
-                        tools:ignore="TouchTargetSizeCheck" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/md_secondary_variant" />
 
-                    <!-- XP Label -->
+                    <!-- Level & XP row -->
                     <TextView
-                        android:id="@+id/tvXpLabel"
+                        android:id="@+id/tvLevelXp"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:fontFamily="sans-serif"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans-serif-medium"
                         android:textColor="@color/md_on_surface_variant"
-                        android:textSize="13sp"
-                        tools:text="0 / 100 XP"
+                        android:textSize="14sp"
+                        tools:text="Level 1 \u2022 0/100 XP"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvGreeting" />
 
-                    <!-- XP Progress Bar -->
-                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                    <!-- XP Progress Bar (custom capsule drawable) -->
+                    <ProgressBar
                         android:id="@+id/xpProgressBar"
+                        style="@android:style/Widget.ProgressBar.Horizontal"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_height="12dp"
+                        android:layout_marginTop="12dp"
+                        android:max="100"
                         android:progress="0"
-                        app:indicatorColor="@color/md_primary"
-                        app:trackColor="@color/md_surface_variant"
-                        app:trackCornerRadius="4dp"
-                        app:trackThickness="8dp"
+                        android:progressDrawable="@drawable/progress_xp_bar"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvXpLabel" />
+                        app:layout_constraintTop_toBottomOf="@id/tvLevelXp" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>

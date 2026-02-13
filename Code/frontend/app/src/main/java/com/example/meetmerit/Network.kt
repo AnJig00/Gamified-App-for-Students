@@ -1,5 +1,6 @@
 package com.example.meetmerit
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -9,14 +10,26 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+
+data class RegisterRequest(val email: String, val username: String, val password: String)
+data class RegisterResponse(val message: String, val id: Int, val username: String, val email: String)
+
 data class LoginRequest(val username: String, val password: String)
-data class LoginResponse(val message: String, val user_id: Int, val username: String, val token: String?) // token 可选
+data class LoginResponse(
+    val message: String,
+    val user_id: Int,
+    val username: String,
+    val token: String? = null,
+    val current_xp: Int = 0,
+    val level: Int = 1
+)
 
 data class Task(
     val id: Int,
     val title: String,
     val is_completed: Boolean,
-    val due_date: String? = null
+    @SerializedName("due_date")
+    val dueDate: String? = null
 )
 
 data class LeaderboardEntry(
@@ -38,6 +51,9 @@ data class FocusResponse(
 data class TaskCompleteResponse(val message: String, val new_xp: Int)
 
 interface ApiService {
+    @POST("api/register/")
+    suspend fun register(@Body request: RegisterRequest): RegisterResponse
+
     @POST("api/login/")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 

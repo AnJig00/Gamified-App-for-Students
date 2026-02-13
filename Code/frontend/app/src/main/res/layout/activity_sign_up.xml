@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-black"
-                android:text="Welcome back"
+                android:text="Create account"
                 android:textColor="#1A1A2E"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -54,13 +54,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Log in to continue your journey"
+                android:text="Start your productivity journey today"
                 android:textColor="#6B7280"
                 android:textSize="15sp" />
 
-            <!-- Email / Username Field -->
+            <!-- Email Field -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilUsername"
+                android:id="@+id/tilEmail"
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -76,12 +76,41 @@
                 app:hintTextColor="#9CA3AF">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:fontFamily="sans-serif"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress"
+                    android:textColor="#1F2937"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Username Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilUsername"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:boxBackgroundColor="#F9FAFB"
+                app:boxBackgroundMode="filled"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:hintTextColor="#9CA3AF">
+
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etUsername"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:fontFamily="sans-serif"
-                    android:hint="Email or username"
-                    android:inputType="textEmailAddress"
+                    android:hint="Username"
+                    android:inputType="text"
                     android:textColor="#1F2937"
                     android:textSize="15sp" />
 
@@ -117,34 +146,52 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Forgot Password -->
-            <TextView
-                android:id="@+id/tvForgotPassword"
-                android:layout_width="wrap_content"
+            <!-- Confirm Password Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilConfirmPassword"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="12dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Forgot password?"
-                android:textColor="#3B82F6"
-                android:textSize="14sp" />
+                android:layout_marginTop="16dp"
+                app:boxBackgroundColor="#F9FAFB"
+                app:boxBackgroundMode="filled"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:endIconMode="password_toggle"
+                app:hintTextColor="#9CA3AF">
 
-            <!-- Login Button -->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etConfirmPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:fontFamily="sans-serif"
+                    android:hint="Confirm password"
+                    android:inputType="textPassword"
+                    android:textColor="#1F2937"
+                    android:textSize="15sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Create Account Button -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLogin"
+                android:id="@+id/btnCreateAccount"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="28dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="Log in"
+                android:text="Create account"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 app:backgroundTint="#3B82F6"
                 app:cornerRadius="26dp" />
 
-            <!-- Status (hidden by default, shown on error) -->
+            <!-- Error text (hidden by default) -->
             <TextView
-                android:id="@+id/tvResult"
+                android:id="@+id/tvError"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -156,14 +203,14 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Footer: "Don't have an account? Create account" -->
+    <!-- Footer: "Already have an account? Log in" -->
     <TextView
         android:id="@+id/tvFooter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:fontFamily="sans-serif"
-        android:text="Don't have an account? Create account"
+        android:text="Already have an account? Log in"
         android:textColor="#6B7280"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
