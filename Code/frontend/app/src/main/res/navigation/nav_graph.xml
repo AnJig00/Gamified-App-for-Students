@@ -8,7 +8,11 @@
         android:id="@+id/navigation_tasks"
         android:name="com.example.meetmerit.TasksFragment"
         android:label="Tasks"
-        tools:layout="@layout/fragment_tasks" />
+        tools:layout="@layout/fragment_tasks">
+        <action
+            android:id="@+id/action_navigation_tasks_to_weeklyTimetableFragment"
+            app:destination="@id/weeklyTimetableFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_focus"
@@ -33,4 +37,10 @@
         android:name="com.example.meetmerit.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/weeklyTimetableFragment"
+        android:name="com.example.meetmerit.WeeklyTimetableFragment"
+        android:label="Weekly Timetable"
+        tools:layout="@layout/fragment_weekly_timetable" />
 </navigation>

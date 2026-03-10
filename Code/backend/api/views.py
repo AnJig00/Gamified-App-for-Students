@@ -1,11 +1,12 @@
+from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.contrib.auth import authenticate
-from .models import Task, Student 
-from .serializers import StudentSerializer, TaskSerializer
+
+from .models import Task, Student, TimetableEntry
+from .serializers import StudentSerializer, TaskSerializer, TimetableEntrySerializer
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -91,6 +92,52 @@ def task_detail(request, pk):
     elif request.method == 'DELETE':
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET', 'POST'])
+def timetable_list_create(request):
+    user_id = request.query_params.get('user_id')
+
+    if not user_id:
+        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = Student.objects.get(pk=user_id)
+    except Student.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        entries = TimetableEntry.objects.filter(user=user)
+        serializer = TimetableEntrySerializer(entries, many=True)
+        return Response(serializer.data)
+
+    serializer = TimetableEntrySerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PATCH', 'DELETE'])
+def timetable_detail(request, pk):
+    user_id = request.query_params.get('user_id')
+    if not user_id:
+        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        entry = TimetableEntry.objects.get(pk=pk, user__id=user_id)
+    except TimetableEntry.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        serializer = TimetableEntrySerializer(entry, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    entry.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 class LeaderboardView(APIView):
     def get(self, request):

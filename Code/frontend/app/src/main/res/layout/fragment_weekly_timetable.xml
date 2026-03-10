@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_tasks">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardTimetableHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/md_surface"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <ImageButton
+                android:id="@+id/btnBackTimetable"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:padding="8dp"
+                android:src="@drawable/ic_chevron_left"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvTimetableTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif-black"
+                android:text="Weekly Timetable"
+                android:textColor="#1A1A2E"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btnBackTimetable"
+                app:layout_constraintTop_toTopOf="@id/btnBackTimetable" />
+
+            <TextView
+                android:id="@+id/tvWeekSummary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="sans-serif"
+                android:text="No classes scheduled yet"
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvTimetableTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvTimetableTitle" />
+
+            <TextView
+                android:id="@+id/tvTimetableHint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Tap a class card to edit or delete it."
+                android:textColor="@color/md_secondary_variant"
+                android:textSize="13sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvTimetableTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvWeekSummary" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/tvTimetableSectionTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="This Week"
+        android:textColor="@color/md_on_background"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardTimetableHeader" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTimetable"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="96dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTimetableSectionTitle"
+        tools:listitem="@layout/item_timetable_entry" />
+
+    <TextView
+        android:id="@+id/tvEmptyTimetable"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:text="No classes yet. Tap + to build your week."
+        android:textColor="@color/md_outline"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rvTimetable"
+        app:layout_constraintEnd_toEndOf="@id/rvTimetable"
+        app:layout_constraintStart_toStartOf="@id/rvTimetable"
+        app:layout_constraintTop_toTopOf="@id/rvTimetable" />
+
+    <ProgressBar
+        android:id="@+id/progressBarTimetable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/md_primary"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rvTimetable"
+        app:layout_constraintEnd_toEndOf="@id/rvTimetable"
+        app:layout_constraintStart_toStartOf="@id/rvTimetable"
+        app:layout_constraintTop_toTopOf="@id/rvTimetable" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddClass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:contentDescription="Add class"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="@color/md_primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/md_on_primary" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

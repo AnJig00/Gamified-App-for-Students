@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginTop="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/md_surface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:id="@+id/layoutClassIcon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_icon_circle_blue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:contentDescription="Class"
+                android:src="@android:drawable/ic_menu_my_calendar"
+                app:tint="@color/md_secondary_variant" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvCourseName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="12dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textColor="#1F2937"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/ivEditHint"
+            app:layout_constraintStart_toEndOf="@id/layoutClassIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Software Engineering" />
+
+        <LinearLayout
+            android:id="@+id/layoutTimeRow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toStartOf="@id/ivEditHint"
+            app:layout_constraintStart_toEndOf="@id/layoutClassIcon"
+            app:layout_constraintTop_toBottomOf="@id/tvCourseName">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="Time"
+                android:src="@android:drawable/ic_menu_recent_history"
+                app:tint="#6B7280" />
+
+            <TextView
+                android:id="@+id/tvClassTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="#6B7280"
+                android:textSize="13sp"
+                tools:text="09:00 - 10:30" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutRoomRow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ivEditHint"
+            app:layout_constraintStart_toEndOf="@id/layoutClassIcon"
+            app:layout_constraintTop_toBottomOf="@id/layoutTimeRow">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="Classroom"
+                android:src="@android:drawable/ic_menu_mylocation"
+                app:tint="#6B7280" />
+
+            <TextView
+                android:id="@+id/tvClassroom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="#6B7280"
+                android:textSize="13sp"
+                tools:text="Room B-204" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ivEditHint"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="Edit class"
+            android:src="@android:drawable/ic_menu_edit"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/md_outline" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

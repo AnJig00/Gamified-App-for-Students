@@ -18,6 +18,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -67,6 +68,7 @@ class TasksFragment : Fragment() {
         tvGreeting = view.findViewById(R.id.tvGreeting)
         tvLevelXp = view.findViewById(R.id.tvLevelXp)
         xpProgressBar = view.findViewById(R.id.xpProgressBar)
+        val btnCalendar = view.findViewById<ImageButton>(R.id.btnCalendar)
 
         // Read user data from SharedPreferences
         val prefs = activity?.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
@@ -91,6 +93,10 @@ class TasksFragment : Fragment() {
 
         if (currentUserId != -1) {
             fetchTasks()
+        }
+
+        btnCalendar.setOnClickListener {
+            findNavController().navigate(R.id.action_navigation_tasks_to_weeklyTimetableFragment)
         }
 
         val fabAddTask =

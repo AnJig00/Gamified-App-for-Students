@@ -2,7 +2,9 @@ package com.example.meetmerit
 
 import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
+import retrofit2.Response
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.DELETE
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
@@ -30,6 +32,19 @@ data class Task(
     val is_completed: Boolean,
     @SerializedName("due_date")
     val dueDate: String? = null
+)
+
+data class TimetableEntry(
+    val id: Int,
+    @SerializedName("course_name")
+    val courseName: String,
+    @SerializedName("day_of_week")
+    val dayOfWeek: Int,
+    @SerializedName("start_time")
+    val startTime: String,
+    @SerializedName("end_time")
+    val endTime: String,
+    val classroom: String
 )
 
 data class LeaderboardEntry(
@@ -65,6 +80,28 @@ interface ApiService {
 
     @PATCH("api/tasks/{id}/")
     suspend fun completeTask(@Path("id") id: Int, @Query("user_id") userId: Int, @Body task: Task): TaskCompleteResponse
+
+    @GET("api/timetable/")
+    suspend fun getTimetable(@Query("user_id") userId: Int): List<TimetableEntry>
+
+    @POST("api/timetable/")
+    suspend fun createTimetableEntry(
+        @Query("user_id") userId: Int,
+        @Body entry: TimetableEntry
+    ): TimetableEntry
+
+    @PATCH("api/timetable/{id}/")
+    suspend fun updateTimetableEntry(
+        @Path("id") id: Int,
+        @Query("user_id") userId: Int,
+        @Body entry: TimetableEntry
+    ): TimetableEntry
+
+    @DELETE("api/timetable/{id}/")
+    suspend fun deleteTimetableEntry(
+        @Path("id") id: Int,
+        @Query("user_id") userId: Int
+    ): Response<Unit>
 
     @GET("api/leaderboard/")
     suspend fun getLeaderboard(): List<LeaderboardEntry>
