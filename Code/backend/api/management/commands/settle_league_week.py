@@ -27,7 +27,14 @@ class Command(BaseCommand):
             week = get_current_league_week(today)
 
         if week is None:
-            raise CommandError('No completed unsettled league week is available to settle.')
+            current_week = prime_current_week_for_all_students(today)
+            self.stdout.write(
+                self.style.WARNING(
+                    f'No completed unsettled league week was found. '
+                    f'Current week remains {current_week.start_date} - {current_week.end_date}.'
+                )
+            )
+            return
 
         settle_league_week(week)
         current_week = prime_current_week_for_all_students(today)
