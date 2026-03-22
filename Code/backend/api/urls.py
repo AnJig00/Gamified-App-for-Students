@@ -12,6 +12,9 @@ urlpatterns = [
     path('timetable/', views.timetable_list_create, name='timetable-list-create'),
     path('timetable/<int:pk>/', views.timetable_detail, name='timetable-detail'),
 
+    path('notes/', views.note_list_create, name='note-list-create'),
+    path('notes/<int:pk>/', views.note_detail, name='note-detail'),
+
     path('leaderboard/', LeaderboardView.as_view(), name='leaderboard'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('league/status/', LeagueStatusView.as_view(), name='league-status'),

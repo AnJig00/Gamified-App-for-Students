@@ -14,8 +14,8 @@ from .league_services import (
     get_profile_snapshot,
     get_league_status_for_student,
 )
-from .models import Student, Task, TimetableEntry
-from .serializers import StudentSerializer, TaskSerializer, TimetableEntrySerializer
+from .models import Note, Student, Task, TimetableEntry
+from .serializers import NoteSerializer, StudentSerializer, TaskSerializer, TimetableEntrySerializer
 
 
 @api_view(['POST'])
@@ -157,6 +157,69 @@ def timetable_detail(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     entry.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET', 'POST'])
+def note_list_create(request):
+    student, error_response = get_student_from_query_params(request)
+    if error_response is not None:
+        return error_response
+
+    if request.method == 'GET':
+        notes = Note.objects.filter(user=student)
+
+        linked_task_id = request.query_params.get('linked_task_id')
+        linked_timetable_entry_id = request.query_params.get('linked_timetable_entry_id')
+        note_type = request.query_params.get('note_type')
+        course_name = request.query_params.get('course_name')
+        query = request.query_params.get('query')
+
+        if linked_task_id:
+            notes = notes.filter(linked_task_id=linked_task_id)
+        if linked_timetable_entry_id:
+            notes = notes.filter(linked_timetable_entry_id=linked_timetable_entry_id)
+        if note_type:
+            notes = notes.filter(note_type=note_type)
+        if course_name:
+            notes = notes.filter(course_name__iexact=course_name)
+        if query:
+            notes = notes.filter(title__icontains=query) | notes.filter(content_markdown__icontains=query)
+
+        serializer = NoteSerializer(notes.distinct(), many=True)
+        return Response(serializer.data)
+
+    serializer = NoteSerializer(data=request.data, context={'user': student})
+    if serializer.is_valid():
+        serializer.save(user=student)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PATCH', 'DELETE'])
+def note_detail(request, pk):
+    user_id = request.query_params.get('user_id')
+    if not user_id:
+        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        note = Note.objects.get(pk=pk, user__id=user_id)
+    except Note.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        serializer = NoteSerializer(
+            note,
+            data=request.data,
+            partial=True,
+            context={'user': note.user},
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    note.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 

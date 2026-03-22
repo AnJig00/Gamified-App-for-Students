@@ -71,6 +71,48 @@ class TimetableEntry(models.Model):
         return f'{self.course_name} ({self.get_day_of_week_display()})'
 
 
+class Note(models.Model):
+    TYPE_QUICK = 'quick'
+    TYPE_TASK = 'task'
+    TYPE_CLASS = 'class'
+    TYPE_COURSE = 'course'
+
+    TYPE_CHOICES = [
+        (TYPE_QUICK, 'Quick'),
+        (TYPE_TASK, 'Task'),
+        (TYPE_CLASS, 'Class'),
+        (TYPE_COURSE, 'Course'),
+    ]
+
+    user = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='notes')
+    title = models.CharField(max_length=160)
+    content_markdown = models.TextField(blank=True)
+    note_type = models.CharField(max_length=16, choices=TYPE_CHOICES, default=TYPE_QUICK)
+    course_name = models.CharField(max_length=120, blank=True)
+    linked_task = models.ForeignKey(
+        Task,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='notes',
+    )
+    linked_timetable_entry = models.ForeignKey(
+        TimetableEntry,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='notes',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at', '-created_at']
+
+    def __str__(self):
+        return self.title
+
+
 class League(models.Model):
     code = models.SlugField(unique=True)
     name = models.CharField(max_length=80)

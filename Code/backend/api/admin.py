@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import League, LeagueMembership, LeagueWeek, Task, TimetableEntry, WeeklyLeagueEntry
+from .models import League, LeagueMembership, LeagueWeek, Note, Task, TimetableEntry, WeeklyLeagueEntry
 
 
 @admin.register(Task)
@@ -42,3 +42,10 @@ class WeeklyLeagueEntryAdmin(admin.ModelAdmin):
     list_display = ('student', 'league', 'week', 'weekly_xp', 'final_rank', 'outcome')
     list_filter = ('league', 'week', 'outcome')
     search_fields = ('student__username',)
+
+
+@admin.register(Note)
+class NoteAdmin(admin.ModelAdmin):
+    list_display = ('title', 'user', 'note_type', 'course_name', 'linked_task', 'linked_timetable_entry', 'updated_at')
+    list_filter = ('note_type', 'user')
+    search_fields = ('title', 'content_markdown', 'course_name', 'user__username')

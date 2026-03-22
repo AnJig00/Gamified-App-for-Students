@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .league_services import award_student_xp, get_current_league_week, settle_league_week
-from .models import LeagueMembership, Student, TimetableEntry
+from .models import LeagueMembership, Note, Student, Task, TimetableEntry
 
 
 class TimetableApiTests(APITestCase):
@@ -80,6 +80,69 @@ class TimetableApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['course_name'], 'Chemistry')
+
+
+class NoteApiTests(APITestCase):
+    def setUp(self):
+        self.student = Student.objects.create_user(
+            username='notes_alice',
+            email='notes_alice@example.com',
+            password='password123',
+        )
+        self.task = Task.objects.create(
+            user=self.student,
+            title='Finish essay',
+            is_completed=False,
+        )
+        self.timetable_entry = TimetableEntry.objects.create(
+            user=self.student,
+            course_name='History',
+            day_of_week=1,
+            start_time=time(9, 0),
+            end_time=time(10, 0),
+            classroom='Room 202',
+        )
+
+    def test_create_task_linked_note(self):
+        response = self.client.post(
+            f"{reverse('note-list-create')}?user_id={self.student.id}",
+            {
+                "title": "Essay checklist",
+                "content_markdown": "- [ ] Draft intro",
+                "note_type": "task",
+                "linked_task": self.task.id,
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Note.objects.count(), 1)
+        self.assertEqual(Note.objects.get().linked_task, self.task)
+
+    def test_filter_notes_by_timetable_entry(self):
+        Note.objects.create(
+            user=self.student,
+            title='Lecture recap',
+            content_markdown='# Notes',
+            note_type='class',
+            linked_timetable_entry=self.timetable_entry,
+            course_name='History',
+        )
+        Note.objects.create(
+            user=self.student,
+            title='Quick thought',
+            content_markdown='Remember to revise',
+            note_type='quick',
+        )
+
+        response = self.client.get(
+            f"{reverse('note-list-create')}?user_id={self.student.id}&linked_timetable_entry_id={self.timetable_entry.id}",
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], 'Lecture recap')
 
 
 class LeagueApiTests(APITestCase):
