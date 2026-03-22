@@ -6,6 +6,8 @@ from django.utils import timezone
 
 from .models import League, LeagueMembership, LeagueWeek, Student, WeeklyLeagueEntry
 
+XP_PER_LEVEL = 100
+
 
 DEFAULT_LEAGUES = [
     {'code': 'bronze', 'name': 'Bronze League', 'tier': 1},
@@ -83,6 +85,29 @@ def ensure_weekly_entry(student, week=None):
     return entry
 
 
+def calculate_level_for_xp(current_xp):
+    return max((current_xp // XP_PER_LEVEL) + 1, 1)
+
+
+def get_level_progress(current_xp):
+    xp_into_level = current_xp % XP_PER_LEVEL
+    xp_remaining = XP_PER_LEVEL - xp_into_level if xp_into_level > 0 else XP_PER_LEVEL
+    return {
+        'xp_into_level': xp_into_level,
+        'xp_per_level': XP_PER_LEVEL,
+        'xp_remaining_to_next_level': xp_remaining,
+        'progress_percent': int((xp_into_level / XP_PER_LEVEL) * 100),
+    }
+
+
+def update_student_level(student):
+    computed_level = calculate_level_for_xp(student.current_xp)
+    if student.level != computed_level:
+        Student.objects.filter(pk=student.pk).update(level=computed_level)
+        student.level = computed_level
+    return computed_level
+
+
 @transaction.atomic
 def award_student_xp(student, xp_amount):
     week = get_current_league_week()
@@ -91,7 +116,8 @@ def award_student_xp(student, xp_amount):
     Student.objects.filter(pk=student.pk).update(current_xp=F('current_xp') + xp_amount)
     WeeklyLeagueEntry.objects.filter(pk=entry.pk).update(weekly_xp=F('weekly_xp') + xp_amount)
 
-    student.refresh_from_db(fields=['current_xp'])
+    student.refresh_from_db(fields=['current_xp', 'level'])
+    update_student_level(student)
     entry.refresh_from_db(fields=['weekly_xp'])
     return entry
 
@@ -202,6 +228,35 @@ def get_league_leaderboard_for_student(student, target_date=None):
             }
             for entry in entries
         ],
+    }
+
+
+def get_global_rank_for_student(student):
+    higher_xp_count = Student.objects.filter(current_xp__gt=student.current_xp).count()
+    tied_ahead_count = Student.objects.filter(
+        current_xp=student.current_xp,
+        username__lt=student.username,
+    ).count()
+    return higher_xp_count + tied_ahead_count + 1
+
+
+def get_profile_snapshot(student, target_date=None):
+    status = get_league_status_for_student(student, target_date)
+    update_student_level(student)
+    progress = get_level_progress(student.current_xp)
+
+    return {
+        'username': student.username,
+        'email': student.email,
+        'current_xp': student.current_xp,
+        'level': student.level,
+        'credits': student.credits,
+        'global_rank': get_global_rank_for_student(student),
+        'completed_tasks': student.tasks.filter(is_completed=True).count(),
+        'league_name': status['league_name'],
+        'weekly_xp': status['weekly_xp'],
+        'last_outcome_label': status['last_outcome_label'],
+        **progress,
     }
 
 

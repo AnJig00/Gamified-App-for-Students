@@ -11,6 +11,7 @@ from .league_services import (
     ensure_weekly_entry,
     get_current_league_week,
     get_league_leaderboard_for_student,
+    get_profile_snapshot,
     get_league_status_for_student,
 )
 from .models import Student, Task, TimetableEntry
@@ -203,6 +204,15 @@ class LeagueLeaderboardView(APIView):
             return error_response
 
         return Response(get_league_leaderboard_for_student(student))
+
+
+class ProfileView(APIView):
+    def get(self, request):
+        student, error_response = get_student_from_query_params(request)
+        if error_response is not None:
+            return error_response
+
+        return Response(get_profile_snapshot(student))
 
 
 @api_view(['POST'])

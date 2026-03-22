@@ -103,6 +103,23 @@ class LeagueApiTests(APITestCase):
         self.assertEqual(response.data['weekly_xp'], 25)
         self.assertEqual(response.data['rank'], 1)
 
+    def test_profile_endpoint_returns_growth_snapshot(self):
+        award_student_xp(self.student, 130)
+
+        response = self.client.get(
+            f"{reverse('profile')}?user_id={self.student.id}",
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], 'league_alice')
+        self.assertEqual(response.data['current_xp'], 130)
+        self.assertEqual(response.data['level'], 2)
+        self.assertEqual(response.data['weekly_xp'], 130)
+        self.assertEqual(response.data['league_name'], 'Bronze League')
+        self.assertEqual(response.data['xp_into_level'], 30)
+        self.assertEqual(response.data['xp_remaining_to_next_level'], 70)
+
     def test_settlement_promotes_top_five_students(self):
         week = get_current_league_week()
         students = [self.student]
