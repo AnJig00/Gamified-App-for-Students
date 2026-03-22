@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import LeaderboardView
+from .views import LeaderboardView, LeagueLeaderboardView, LeagueStatusView
 
 urlpatterns = [
     path('register/', views.register_user, name='register'),
@@ -13,6 +13,8 @@ urlpatterns = [
     path('timetable/<int:pk>/', views.timetable_detail, name='timetable-detail'),
 
     path('leaderboard/', LeaderboardView.as_view(), name='leaderboard'),
+    path('league/status/', LeagueStatusView.as_view(), name='league-status'),
+    path('league/leaderboard/', LeagueLeaderboardView.as_view(), name='league-leaderboard'),
 
     path('focus/', views.add_focus_log, name='focus-log'),
 ]

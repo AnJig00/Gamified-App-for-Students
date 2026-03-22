@@ -4,7 +4,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Student, TimetableEntry
+from .league_services import award_student_xp, get_current_league_week, settle_league_week
+from .models import LeagueMembership, Student, TimetableEntry
 
 
 class TimetableApiTests(APITestCase):
@@ -79,3 +80,57 @@ class TimetableApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['course_name'], 'Chemistry')
+
+
+class LeagueApiTests(APITestCase):
+    def setUp(self):
+        self.student = Student.objects.create_user(
+            username='league_alice',
+            email='league_alice@example.com',
+            password='password123',
+        )
+
+    def test_league_status_returns_weekly_progress(self):
+        award_student_xp(self.student, 25)
+
+        response = self.client.get(
+            f"{reverse('league-status')}?user_id={self.student.id}",
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['league_name'], 'Bronze League')
+        self.assertEqual(response.data['weekly_xp'], 25)
+        self.assertEqual(response.data['rank'], 1)
+
+    def test_settlement_promotes_top_five_students(self):
+        week = get_current_league_week()
+        students = [self.student]
+        xp_values = [60, 50, 40, 30, 20, 10]
+
+        for index in range(2, 7):
+            students.append(
+                Student.objects.create_user(
+                    username=f'league_user_{index}',
+                    email=f'league_user_{index}@example.com',
+                    password='password123',
+                )
+            )
+
+        for student, xp_amount in zip(students, xp_values):
+            award_student_xp(student, xp_amount)
+
+        settle_league_week(week)
+
+        memberships = {
+            student.username: LeagueMembership.objects.get(student=student)
+            for student in students
+        }
+
+        promoted_usernames = {
+            username
+            for username, membership in memberships.items()
+            if membership.league.code == 'silver'
+        }
+        self.assertEqual(len(promoted_usernames), 5)
+        self.assertNotIn('league_user_6', promoted_usernames)

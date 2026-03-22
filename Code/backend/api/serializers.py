@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from .league_services import ensure_league_membership, ensure_weekly_entry, get_current_league_week
 from .models import Student, Task, TimetableEntry
 
 
@@ -10,8 +11,9 @@ class StudentSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        
         user = Student.objects.create_user(**validated_data)
+        ensure_league_membership(user)
+        ensure_weekly_entry(user, get_current_league_week())
         return user
 
 class TaskSerializer(serializers.ModelSerializer):
