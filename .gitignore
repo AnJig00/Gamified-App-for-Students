@@ -201,6 +201,15 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
+# Project-local Android and IDE noise
+Code/frontend/.android-user-home/
+Code/frontend/.gradle-user-home/
+Code/frontend/.idea/deploymentTargetSelector.xml
+Code/backend/.python_deps/
+
+# Local design reference workspace
+Code/Gamified Student Companion UI/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
