@@ -5,164 +5,381 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/md_background">
+    android:background="@drawable/bg_gradient_social">
 
-    <!-- ==================== Header ==================== -->
-
-    <TextView
-        android:id="@+id/tvSocialTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="Social"
-        android:textColor="@color/md_on_background"
-        android:textSize="22sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvSocialSubtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="24dp"
-        android:fontFamily="sans-serif"
-        android:text="Find nearby classmates to earn XP!"
-        android:textColor="@color/md_on_surface_variant"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSocialTitle" />
-
-    <!-- ==================== Radar / Scan Area ==================== -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardScanArea"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="@color/md_surface"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSocialSubtitle">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="24dp">
-
-            <!-- Radar icon -->
-            <TextView
-                android:id="@+id/tvRadarIcon"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:background="@drawable/bg_rank_circle"
-                android:backgroundTint="@color/md_primary_container"
-                android:gravity="center"
-                android:text="📡"
-                android:textSize="28sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <!-- Scanning spinner — overlays the radar icon when active -->
-            <!-- EXISTING ID: progressScan -->
-            <ProgressBar
-                android:id="@+id/progressScan"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:indeterminateTint="@color/md_primary"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/tvRadarIcon"
-                app:layout_constraintEnd_toEndOf="@id/tvRadarIcon"
-                app:layout_constraintStart_toStartOf="@id/tvRadarIcon"
-                app:layout_constraintTop_toTopOf="@id/tvRadarIcon"
-                tools:visibility="visible" />
-
-            <TextView
-                android:id="@+id/tvScanHint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:fontFamily="sans-serif"
-                android:text="Tap to search for nearby students"
-                android:textColor="@color/md_on_surface_variant"
-                android:textSize="13sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvRadarIcon" />
-
-            <!-- EXISTING ID: btnStartScan -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnStartScan"
-                android:layout_width="200dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="16dp"
-                android:text="Start Scan"
-                android:textSize="15sp"
-                app:backgroundTint="@color/md_primary"
-                app:cornerRadius="24dp"
-                app:icon="@android:drawable/stat_sys_data_bluetooth"
-                app:iconGravity="textStart"
-                app:iconSize="18dp"
-                app:iconTint="@color/md_on_primary"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvScanHint" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- ==================== Section Label ==================== -->
-    <TextView
-        android:id="@+id/tvNearbyLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="Nearby Students"
-        android:textColor="@color/md_on_background"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardScanArea" />
-
-    <!-- ==================== Empty State ==================== -->
-    <TextView
-        android:id="@+id/tvEmptyState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:fontFamily="sans-serif"
-        android:text="No students found yet"
-        android:textColor="@color/md_outline"
-        android:textSize="14sp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvNearbyLabel" />
-
-    <!-- ==================== Device List ==================== -->
-    <!-- EXISTING ID: rvDevices -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvDevices"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:clipToPadding="false"
-        android:paddingBottom="16dp"
+        android:fillViewport="true"
+        android:paddingBottom="108dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvNearbyLabel" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="24dp">
+
+            <TextView
+                android:id="@+id/tvSocialTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Social"
+                android:textColor="@color/md_on_background"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/tvSocialSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="sans-serif"
+                android:text="Connect with nearby classmates in the real world."
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="14sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="@color/md_primary_container"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_rank_circle"
+                        android:backgroundTint="@color/md_surface"
+                        android:padding="10dp"
+                        android:src="@android:drawable/ic_menu_share"
+                        android:tint="@color/md_primary" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="Offline interactions"
+                            android:textColor="@color/md_on_primary_container"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Use Bluetooth to detect nearby students and confirm real interactions."
+                            android:textColor="@color/md_on_primary_container"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/md_surface"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/md_outline"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="Enable social feature"
+                            android:textColor="@color/md_on_surface"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Privacy-friendly Bluetooth discovery only."
+                            android:textColor="@color/md_on_surface_variant"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchSocialEnabled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:id="@+id/layoutSocialDisabled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="18dp"
+                android:paddingBottom="8dp">
+
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/bg_rank_circle"
+                    android:backgroundTint="@color/md_surface"
+                    android:padding="18dp"
+                    android:src="@android:drawable/stat_sys_data_bluetooth"
+                    android:tint="@color/md_on_surface_variant" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Turn on the feature to start connecting"
+                    android:textColor="@color/md_on_surface"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:text="Nearby discovery stays off until you enable it."
+                    android:textColor="@color/md_on_surface_variant"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutSocialEnabled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStartScan"
+                    style="@style/Widget.App.Button.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Find nearby students"
+                    android:textSize="15sp"
+                    app:icon="@android:drawable/stat_sys_data_bluetooth"
+                    app:iconGravity="textStart"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/md_on_primary" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    app:cardBackgroundColor="@color/md_surface"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/md_outline"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="22dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Interactions today"
+                            android:textColor="@color/md_on_surface_variant"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tvInteractionsCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/md_on_background"
+                            android:textSize="28sp"
+                            tools:text="3" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardScanningState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/md_surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/md_outline"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="26dp">
+
+                    <ProgressBar
+                        android:id="@+id/progressScan"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:indeterminateTint="@color/md_primary"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Searching nearby..."
+                        android:textColor="@color/md_on_surface"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:text="Make sure Bluetooth is enabled on both devices."
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardConfirmedState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/app_success_container"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_focus_success_circle"
+                        android:padding="14dp"
+                        android:src="@drawable/ic_check_circle_filled"
+                        android:tint="@color/app_success_text" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Interaction logged"
+                        android:textColor="@color/app_success_text"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvConfirmedMessage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:textColor="@color/app_success_text"
+                        android:textSize="13sp"
+                        tools:text="You confirmed an interaction with a nearby device." />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tvNearbyLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Nearby Students"
+                android:textColor="@color/md_on_background"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="No nearby students found yet."
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDevices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingBottom="4dp"
+                android:visibility="gone"
+                tools:listitem="@layout/item_device" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:gravity="center"
+                android:text="Privacy note: this feature only detects proximity and never shares private account data."
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

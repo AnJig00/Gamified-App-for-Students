@@ -13,11 +13,15 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "API_BASE_URL", "\"https://meet-merit-app-fc548669a22d.herokuapp.com/\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE_URL", "\"https://meet-merit-app-fc548669a22d.herokuapp.com/\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -25,6 +29,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

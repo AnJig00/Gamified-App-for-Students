@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bottom_sheet"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvNoteDialogTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
+                android:text="New Note"
+                android:textColor="@color/md_on_surface"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnCloseNoteDialog"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Close note editor"
+                android:padding="10dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="@color/md_on_surface_variant" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvNoteContext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_xp_badge"
+            android:paddingStart="12dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="8dp"
+            android:textColor="@color/md_on_primary_container"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupNoteType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNoteQuick"
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Quick Note" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNoteCourse"
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Course Note" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilNoteTitle"
+            style="@style/Widget.App.TextInputLayout.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Title">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etNoteTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:maxLines="1"
+                android:textColor="@color/md_on_surface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilNoteCourseName"
+            style="@style/Widget.App.TextInputLayout.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Course Name"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etNoteCourseName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:textColor="@color/md_on_surface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleNoteMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNoteEditMode"
+                style="@style/Widget.App.Button.Outline"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:minWidth="88dp"
+                android:text="Edit" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNotePreviewMode"
+                style="@style/Widget.App.Button.Outline"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:minWidth="88dp"
+                android:text="Preview" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <HorizontalScrollView
+            android:id="@+id/scrollNoteTools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnInsertHeading"
+                    style="@style/Widget.App.Button.TextAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Heading" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnInsertBullet"
+                    style="@style/Widget.App.Button.TextAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Bullet" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnInsertChecklist"
+                    style="@style/Widget.App.Button.TextAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Checklist" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnInsertBold"
+                    style="@style/Widget.App.Button.TextAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Bold" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilNoteContent"
+            style="@style/Widget.App.TextInputLayout.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Note Content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etNoteContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top|start"
+                android:inputType="textCapSentences|textMultiLine"
+                android:minLines="10"
+                android:textColor="@color/md_on_surface"
+                android:textColorHint="@color/md_on_surface_variant" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvRenderedPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_surface_panel"
+            android:lineSpacingExtra="4dp"
+            android:minHeight="200dp"
+            android:padding="16dp"
+            android:text="Nothing to preview yet."
+            android:textColor="@color/md_on_surface"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Write naturally, or use the quick actions for headings, bullets and checklists."
+            android:textColor="@color/md_on_surface_variant"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeleteNoteDialog"
+                style="@style/Widget.App.Button.TextAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveNoteDialog"
+                style="@style/Widget.App.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Save Note" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

@@ -1,55 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Existing -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- ============================================== -->
-    <!-- Clean Light Theme – Soft Mint / Pastel Blue    -->
-    <!-- ============================================== -->
+    <!-- Brand system -->
+    <color name="md_primary">#FF3B82F6</color>
+    <color name="md_primary_variant">#FF2563EB</color>
+    <color name="md_on_primary">#FFFFFFFF</color>
+    <color name="md_primary_container">#FFDBEAFE</color>
+    <color name="md_on_primary_container">#FF1E3A8A</color>
 
-    <!-- Primary (Mint Green) -->
-    <color name="md_primary">#FF4DB6AC</color>           <!-- Mint 400 -->
-    <color name="md_primary_variant">#FF00897B</color>    <!-- Darker mint for contrast -->
-    <color name="md_on_primary">#FFFFFFFF</color>         <!-- White text on primary -->
+    <color name="md_secondary">#FF14B8A6</color>
+    <color name="md_secondary_variant">#FF0F766E</color>
+    <color name="md_on_secondary">#FFFFFFFF</color>
+    <color name="md_secondary_container">#FFCCFBF1</color>
+    <color name="md_on_secondary_container">#FF134E4A</color>
 
-    <!-- Primary Container (soft tint for chips, FABs) -->
-    <color name="md_primary_container">#FFB2DFDB</color>  <!-- Mint 100 -->
-    <color name="md_on_primary_container">#FF00413D</color>
+    <!-- Surfaces -->
+    <color name="md_background">#FFF4F7FB</color>
+    <color name="md_on_background">#FF0F172A</color>
+    <color name="md_surface">#FFFFFFFF</color>
+    <color name="md_on_surface">#FF111827</color>
+    <color name="md_surface_variant">#FFF8FAFC</color>
+    <color name="md_on_surface_variant">#FF64748B</color>
+    <color name="md_outline">#FFE2E8F0</color>
 
-    <!-- Secondary (Pastel Blue) -->
-    <color name="md_secondary">#FF81D4FA</color>          <!-- Light Blue 200 -->
-    <color name="md_secondary_variant">#FF4FC3F7</color>
-    <color name="md_on_secondary">#FF003549</color>
-    <color name="md_secondary_container">#FFE1F5FE</color>
-    <color name="md_on_secondary_container">#FF002133</color>
-
-    <!-- Background & Surface -->
-    <color name="md_background">#FFF5F5F5</color>         <!-- Off-white -->
-    <color name="md_on_background">#FF333333</color>      <!-- Dark gray text -->
-    <color name="md_surface">#FFFFFFFF</color>            <!-- Pure white cards -->
-    <color name="md_on_surface">#FF333333</color>
-
-    <!-- Surface Variant (dividers, outlines) -->
-    <color name="md_surface_variant">#FFEEEEEE</color>
-    <color name="md_on_surface_variant">#FF666666</color>
-    <color name="md_outline">#FFBDBDBD</color>
-
-    <!-- Error -->
-    <color name="md_error">#FFE57373</color>              <!-- Soft red -->
+    <!-- Feedback -->
+    <color name="md_error">#FFEF4444</color>
     <color name="md_on_error">#FFFFFFFF</color>
-    <color name="md_error_container">#FFFCE4EC</color>
-    <color name="md_on_error_container">#FF5F2120</color>
+    <color name="md_error_container">#FFFEE2E2</color>
+    <color name="md_on_error_container">#FF7F1D1D</color>
 
-    <!-- Bottom Nav / Status Bar -->
-    <color name="md_surface_container">#FFFAFAFA</color>
-    <color name="md_status_bar">#FFE0F2F1</color>        <!-- Very light mint -->
+    <!-- App surfaces -->
+    <color name="md_surface_container">#FFFFFFFF</color>
+    <color name="md_status_bar">#FFEFF6FF</color>
+    <color name="app_gradient_start">#FFF0F7FF</color>
+    <color name="app_gradient_end">#FFFFFFFF</color>
+    <color name="app_warning_container">#FFFFF7ED</color>
+    <color name="app_warning_text">#FF9A3412</color>
+    <color name="app_success_container">#FFECFDF3</color>
+    <color name="app_success_text">#FF166534</color>
+    <color name="app_violet_container">#FFF5F3FF</color>
+    <color name="app_violet_text">#FF7C3AED</color>
+    <color name="app_blue_text">#FF1D4ED8</color>
 
-    <!-- Leaderboard Medals -->
-    <color name="md_medal_gold">#FFFFD54F</color>         <!-- Amber 300 -->
-    <color name="md_medal_silver">#FFE0E0E0</color>       <!-- Grey 300 -->
-    <color name="md_medal_bronze">#FFFFAB91</color>       <!-- Deep Orange 200 -->
+    <!-- Leaderboard medals -->
+    <color name="md_medal_gold">#FFFFD54F</color>
+    <color name="md_medal_silver">#FFE0E0E0</color>
+    <color name="md_medal_bronze">#FFFFAB91</color>
     <color name="md_medal_gold_text">#FF795548</color>
     <color name="md_medal_silver_text">#FF616161</color>
     <color name="md_medal_bronze_text">#FF5D4037</color>
+
+    <!-- Timetable palette -->
+    <color name="timetable_blue_100">#FFDBEAFE</color>
+    <color name="timetable_mint_100">#FFCCFBEF</color>
+    <color name="timetable_green_100">#FFDCFCE7</color>
+    <color name="timetable_yellow_100">#FFFEF3C7</color>
+    <color name="timetable_purple_100">#FFF3E8FF</color>
+    <color name="timetable_pink_100">#FFFCE7F3</color>
+    <color name="timetable_orange_100">#FFFFEDD5</color>
 </resources>

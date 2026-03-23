@@ -29,7 +29,7 @@
     <fragment
         android:id="@+id/navigation_scan"
         android:name="com.example.meetmerit.ScanFragment"
-        android:label="Scan Device"
+        android:label="Social"
         tools:layout="@layout/fragment_scan" />
 
     <fragment
@@ -43,4 +43,10 @@
         android:name="com.example.meetmerit.WeeklyTimetableFragment"
         android:label="Weekly Timetable"
         tools:layout="@layout/fragment_weekly_timetable" />
+
+    <fragment
+        android:id="@+id/notesFragment"
+        android:name="com.example.meetmerit.NotesFragment"
+        android:label="Notebook"
+        tools:layout="@layout/fragment_notes" />
 </navigation>

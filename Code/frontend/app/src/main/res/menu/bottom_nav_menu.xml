@@ -3,27 +3,27 @@
 
     <item
         android:id="@+id/navigation_tasks"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@drawable/ic_check_circle_outline"
         android:title="Tasks" />
 
     <item
         android:id="@+id/navigation_focus"
-        android:icon="@android:drawable/ic_menu_recent_history"
+        android:icon="@android:drawable/ic_lock_idle_alarm"
         android:title="Focus" />
 
     <item
         android:id="@+id/navigation_scan"
-        android:icon="@android:drawable/ic_menu_share"
+        android:icon="@android:drawable/stat_sys_data_bluetooth"
         android:title="Social" />
 
     <item
         android:id="@+id/navigation_leaderboard"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="Rank" />
+        android:icon="@android:drawable/btn_star_big_on"
+        android:title="League" />
 
     <item
         android:id="@+id/navigation_profile"
-        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:icon="@android:drawable/ic_menu_myplaces"
         android:title="Profile" />
 
 </menu>

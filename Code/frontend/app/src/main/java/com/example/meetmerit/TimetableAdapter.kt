@@ -1,90 +1,111 @@
 package com.example.meetmerit
 
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
-sealed class TimetableListItem {
-    data class DayHeader(val label: String) : TimetableListItem()
-    data class EntryRow(val entry: TimetableEntry) : TimetableListItem()
-}
+data class TimetableDaySection(
+    val label: String,
+    val entries: List<TimetableEntry>
+)
 
 class TimetableAdapter(
-    private var items: List<TimetableListItem>,
-    private val onEntryClick: (TimetableEntry) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private var sections: List<TimetableDaySection>,
+    private val onEntryClick: (TimetableEntry) -> Unit,
+    private val onEntryDelete: (TimetableEntry) -> Unit,
+    private val onEntryNotesClick: (TimetableEntry) -> Unit,
+) : RecyclerView.Adapter<TimetableAdapter.DaySectionViewHolder>() {
 
-    companion object {
-        private const val VIEW_TYPE_DAY_HEADER = 0
-        private const val VIEW_TYPE_ENTRY = 1
+    inner class DaySectionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tvDayLabel: TextView = itemView.findViewById(R.id.tvDayLabel)
+        val tvEmptyDay: TextView = itemView.findViewById(R.id.tvEmptyDay)
+        val layoutEntries: LinearLayout = itemView.findViewById(R.id.layoutEntries)
     }
 
-    inner class DayHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvDayHeader: TextView = itemView.findViewById(R.id.tvDayHeader)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DaySectionViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_timetable_day_section, parent, false)
+        return DaySectionViewHolder(view)
     }
 
-    inner class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvCourseName: TextView = itemView.findViewById(R.id.tvCourseName)
-        val tvClassTime: TextView = itemView.findViewById(R.id.tvClassTime)
-        val tvClassroom: TextView = itemView.findViewById(R.id.tvClassroom)
-    }
+    override fun onBindViewHolder(holder: DaySectionViewHolder, position: Int) {
+        val section = sections[position]
+        holder.tvDayLabel.text = section.label
+        holder.layoutEntries.removeAllViews()
 
-    override fun getItemViewType(position: Int): Int {
-        return when (items[position]) {
-            is TimetableListItem.DayHeader -> VIEW_TYPE_DAY_HEADER
-            is TimetableListItem.EntryRow -> VIEW_TYPE_ENTRY
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            VIEW_TYPE_DAY_HEADER -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_timetable_day_header, parent, false)
-                DayHeaderViewHolder(view)
-            }
-
-            else -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_timetable_entry, parent, false)
-                EntryViewHolder(view)
+        if (section.entries.isEmpty()) {
+            holder.tvEmptyDay.visibility = View.VISIBLE
+        } else {
+            holder.tvEmptyDay.visibility = View.GONE
+            section.entries.forEach { entry ->
+                holder.layoutEntries.addView(createEntryView(holder.layoutEntries, entry))
             }
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val item = items[position]) {
-            is TimetableListItem.DayHeader -> {
-                (holder as DayHeaderViewHolder).tvDayHeader.text = item.label
-            }
+    override fun getItemCount(): Int = sections.size
 
-            is TimetableListItem.EntryRow -> {
-                holder as EntryViewHolder
-                holder.tvCourseName.text = item.entry.courseName
-                holder.tvClassTime.text =
-                    "${toDisplayTime(item.entry.startTime)} - ${toDisplayTime(item.entry.endTime)}"
-                holder.tvClassroom.text = item.entry.classroom
-                holder.itemView.setOnClickListener {
-                    onEntryClick(item.entry)
-                }
-            }
-        }
-    }
-
-    override fun getItemCount(): Int = items.size
-
-    fun updateData(newItems: List<TimetableListItem>) {
-        items = newItems
+    fun updateData(newSections: List<TimetableDaySection>) {
+        sections = newSections
         notifyDataSetChanged()
     }
 
-    private fun toDisplayTime(rawTime: String): String {
-        val parts = rawTime.split(":")
-        if (parts.size < 2) {
-            return rawTime
+    private fun createEntryView(parent: ViewGroup, entry: TimetableEntry): View {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_timetable_class_card, parent, false)
+
+        val root = view.findViewById<View>(R.id.layoutClassCard)
+        val tvCourseName = view.findViewById<TextView>(R.id.tvCourseName)
+        val tvClassMeta = view.findViewById<TextView>(R.id.tvClassMeta)
+        val btnNotes = view.findViewById<ImageButton>(R.id.btnClassNotes)
+        val btnDelete = view.findViewById<ImageButton>(R.id.btnDeleteClass)
+
+        tvCourseName.text = entry.courseName
+        tvClassMeta.text =
+            "${TimeOptionUtils.apiToCompactDisplayRange(entry.startTime, entry.endTime)} • ${entry.classroom}"
+
+        applyPastelBackground(root, entry)
+
+        root.setOnClickListener {
+            onEntryClick(entry)
         }
-        return "${parts[0]}:${parts[1]}"
+        btnNotes.setOnClickListener {
+            onEntryNotesClick(entry)
+        }
+        btnDelete.setOnClickListener {
+            onEntryDelete(entry)
+        }
+
+        return view
+    }
+
+    private fun applyPastelBackground(view: View, entry: TimetableEntry) {
+        val colors = listOf(
+            R.color.timetable_blue_100,
+            R.color.timetable_mint_100,
+            R.color.timetable_green_100,
+            R.color.timetable_yellow_100,
+            R.color.timetable_purple_100,
+            R.color.timetable_pink_100,
+            R.color.timetable_orange_100
+        )
+        val colorRes = colors[absoluteValue(entry.courseName.hashCode()) % colors.size]
+        val color = ContextCompat.getColor(view.context, colorRes)
+        val background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = view.resources.displayMetrics.density * 16
+            setColor(color)
+        }
+        view.background = background
+    }
+
+    private fun absoluteValue(value: Int): Int {
+        return if (value == Int.MIN_VALUE) 0 else kotlin.math.abs(value)
     }
 }

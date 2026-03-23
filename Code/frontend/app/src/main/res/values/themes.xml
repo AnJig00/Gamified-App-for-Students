@@ -1,63 +1,47 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Base application theme (Light) -->
     <style name="Base.Theme.MeetMerit" parent="Theme.Material3.DayNight.NoActionBar">
-
-        <!-- Primary -->
         <item name="colorPrimary">@color/md_primary</item>
         <item name="colorPrimaryVariant">@color/md_primary_variant</item>
         <item name="colorOnPrimary">@color/md_on_primary</item>
         <item name="colorPrimaryContainer">@color/md_primary_container</item>
         <item name="colorOnPrimaryContainer">@color/md_on_primary_container</item>
 
-        <!-- Secondary -->
         <item name="colorSecondary">@color/md_secondary</item>
         <item name="colorSecondaryVariant">@color/md_secondary_variant</item>
         <item name="colorOnSecondary">@color/md_on_secondary</item>
         <item name="colorSecondaryContainer">@color/md_secondary_container</item>
         <item name="colorOnSecondaryContainer">@color/md_on_secondary_container</item>
 
-        <!-- Background & Surface -->
         <item name="android:colorBackground">@color/md_background</item>
         <item name="colorOnBackground">@color/md_on_background</item>
         <item name="colorSurface">@color/md_surface</item>
         <item name="colorOnSurface">@color/md_on_surface</item>
-
-        <!-- Surface Variant & Outline -->
         <item name="colorSurfaceVariant">@color/md_surface_variant</item>
         <item name="colorOnSurfaceVariant">@color/md_on_surface_variant</item>
         <item name="colorOutline">@color/md_outline</item>
 
-        <!-- Error -->
         <item name="colorError">@color/md_error</item>
         <item name="colorOnError">@color/md_on_error</item>
         <item name="colorErrorContainer">@color/md_error_container</item>
         <item name="colorOnErrorContainer">@color/md_on_error_container</item>
 
-        <!-- Status bar -->
         <item name="android:statusBarColor">@color/md_status_bar</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-
-        <!-- Navigation bar -->
         <item name="android:navigationBarColor">@color/md_surface_container</item>
+        <item name="android:windowBackground">@color/md_background</item>
 
-        <!-- Default text color -->
         <item name="android:textColorPrimary">@color/md_on_background</item>
         <item name="android:textColorSecondary">@color/md_on_surface_variant</item>
-
     </style>
 
     <style name="Theme.MeetMerit" parent="Base.Theme.MeetMerit" />
 
-    <!-- Circle shape for avatars -->
     <style name="ShapeAppearance.App.Circle" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
 
-    <!-- ================================================== -->
-    <!-- BottomSheet with rounded top corners               -->
-    <!-- ================================================== -->
     <style name="ThemeOverlay.App.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/Widget.App.BottomSheet</item>
     </style>
@@ -69,13 +53,10 @@
 
     <style name="ShapeAppearance.App.BottomSheet" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopLeft">24dp</item>
-        <item name="cornerSizeTopRight">24dp</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
     </style>
 
-    <!-- ================================================== -->
-    <!-- Reusable Card Style (rounded corners + elevation)  -->
-    <!-- ================================================== -->
     <style name="Widget.App.Card" parent="Widget.Material3.CardView.Filled">
         <item name="cardCornerRadius">16dp</item>
         <item name="cardElevation">2dp</item>
@@ -85,6 +66,74 @@
         <item name="android:layout_marginEnd">16dp</item>
         <item name="android:layout_marginTop">8dp</item>
         <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+    <style name="TextAppearance.App.PageTitle" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textColor">@color/md_on_background</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.App.SectionTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/md_on_background</item>
+    </style>
+
+    <style name="TextAppearance.App.BodyMuted" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/md_on_surface_variant</item>
+    </style>
+
+    <style name="Widget.App.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/md_on_primary</item>
+        <item name="backgroundTint">@color/md_primary</item>
+        <item name="cornerRadius">26dp</item>
+    </style>
+
+    <style name="Widget.App.Button.Outline" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/md_primary</item>
+        <item name="cornerRadius">26dp</item>
+        <item name="strokeColor">@color/md_primary</item>
+        <item name="strokeWidth">2dp</item>
+    </style>
+
+    <style name="Widget.App.Button.TextAction" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/md_on_surface_variant</item>
+    </style>
+
+    <style name="Widget.App.TextInputLayout.Filled" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundMode">filled</item>
+        <item name="boxBackgroundColor">@color/md_surface_variant</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxStrokeColor">@color/md_outline</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="hintTextColor">@color/md_on_surface_variant</item>
+    </style>
+
+    <style name="ShapeAppearance.App.BottomNavIndicator" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">18dp</item>
+    </style>
+
+    <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconTint">@color/nav_item_color</item>
+        <item name="itemTextColor">@color/nav_item_color</item>
+        <item name="itemRippleColor">@color/nav_item_ripple</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.Material3.LabelSmall</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.Material3.LabelSmall</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.App.BottomNavigationView.ActiveIndicator</item>
+    </style>
+
+    <style name="Widget.App.BottomNavigationView.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:width">56dp</item>
+        <item name="android:height">32dp</item>
+        <item name="marginHorizontal">12dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.BottomNavIndicator</item>
+        <item name="color">@color/md_primary_container</item>
     </style>
 
 </resources>

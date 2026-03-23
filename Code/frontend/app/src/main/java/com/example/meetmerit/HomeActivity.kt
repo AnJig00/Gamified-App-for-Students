@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -39,8 +40,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun setBottomNavVisibility(visible: Boolean) {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.visibility = if (visible) View.VISIBLE else View.GONE
+        val bottomNavShell = findViewById<FrameLayout>(R.id.bottom_navigation_shell)
+        bottomNavShell.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     private fun performLogout() {

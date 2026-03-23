@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/md_surface"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/md_outline"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvNoteTypeChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="10dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="4dp"
+            android:textSize="12sp"
+            tools:text="Quick" />
+
+        <ImageButton
+            android:id="@+id/btnDeleteNote"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Delete note"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:tint="@color/md_on_surface_variant"
+            app:layout_constraintBottom_toBottomOf="@id/tvNoteTypeChip"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvNoteTypeChip" />
+
+        <TextView
+            android:id="@+id/tvNoteUpdatedAt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/md_on_surface_variant"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvNoteTypeChip"
+            app:layout_constraintEnd_toStartOf="@id/btnDeleteNote"
+            app:layout_constraintStart_toEndOf="@id/tvNoteTypeChip"
+            app:layout_constraintTop_toTopOf="@id/tvNoteTypeChip"
+            tools:text="Updated Mar 22, 2:40 PM" />
+
+        <TextView
+            android:id="@+id/tvNoteTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:textColor="@color/md_on_surface"
+            android:textSize="17sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNoteTypeChip"
+            tools:text="Math Assignment Notes" />
+
+        <TextView
+            android:id="@+id/tvNoteContext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/md_primary"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNoteTitle"
+            tools:text="Mathematics" />
+
+        <TextView
+            android:id="@+id/tvNotePreview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif"
+            android:lineSpacingExtra="2dp"
+            android:maxLines="3"
+            android:textColor="@color/md_on_surface_variant"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNoteContext"
+            tools:text="Read chapter 6 before Friday. Check the rubric, list the questions for the tutorial, then convert the last two points into tasks." />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

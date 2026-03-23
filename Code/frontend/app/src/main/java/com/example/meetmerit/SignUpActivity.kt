@@ -1,7 +1,6 @@
 package com.example.meetmerit
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -13,6 +12,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -56,7 +56,7 @@ class SignUpActivity : AppCompatActivity() {
                 finish()
             }
             override fun updateDrawState(ds: TextPaint) {
-                ds.color = Color.parseColor("#3B82F6")
+                ds.color = ContextCompat.getColor(this@SignUpActivity, R.color.md_primary)
                 ds.isUnderlineText = false
             }
         }, linkStart, linkEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

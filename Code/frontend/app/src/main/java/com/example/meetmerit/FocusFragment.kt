@@ -1,67 +1,97 @@
 package com.example.meetmerit
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.progressindicator.CircularProgressIndicator
-import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class FocusFragment : Fragment() {
 
-    // ── Existing view references (IDs preserved) ──
-    private lateinit var tvTimer: TextView
-    private lateinit var btnStart: Button
-    private lateinit var btnStop: Button
-    private lateinit var tvSelectedTime: TextView
-    private lateinit var layoutSelector: LinearLayout
+    private enum class FocusUiState {
+        SETUP,
+        ACTIVE,
+        SUCCESS,
+        INTERRUPTED
+    }
 
-    // ── New view references ──
+    private lateinit var layoutFocusSetup: LinearLayout
+    private lateinit var layoutFocusActive: LinearLayout
+    private lateinit var layoutFocusSuccess: LinearLayout
+    private lateinit var layoutFocusInterrupted: LinearLayout
+
+    private lateinit var tvTimerPreview: TextView
+    private lateinit var tvTimer: TextView
+    private lateinit var tvSelectedTime: TextView
+    private lateinit var tvSetupReward: TextView
+    private lateinit var tvActiveXpHint: TextView
+    private lateinit var tvSuccessMessage: TextView
+    private lateinit var tvSuccessReward: TextView
+    private lateinit var tvInterruptedMessage: TextView
+
+    private lateinit var btnStart: MaterialButton
+    private lateinit var btnStop: MaterialButton
+    private lateinit var btnSuccessReset: MaterialButton
+    private lateinit var btnInterruptedReset: MaterialButton
+
     private lateinit var circularProgress: CircularProgressIndicator
     private lateinit var chipGroup: ChipGroup
 
-    // ── Timer state ──
     private var timer: CountDownTimer? = null
-    private var isTimerRunning = false
     private var currentUserId: Int = -1
-
     private var selectedMinutes: Int = 25
     private var timeLeftInMillis: Long = 25 * 60 * 1000L
     private var totalTimeInMillis: Long = 25 * 60 * 1000L
+    private var uiState: FocusUiState = FocusUiState.SETUP
 
-    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val view = inflater.inflate(R.layout.fragment_focus, container, false)
 
-        // ── Bind existing IDs ──
+        layoutFocusSetup = view.findViewById(R.id.layoutFocusSetup)
+        layoutFocusActive = view.findViewById(R.id.layoutFocusActive)
+        layoutFocusSuccess = view.findViewById(R.id.layoutFocusSuccess)
+        layoutFocusInterrupted = view.findViewById(R.id.layoutFocusInterrupted)
+
+        tvTimerPreview = view.findViewById(R.id.tvTimerPreview)
         tvTimer = view.findViewById(R.id.tvTimer)
+        tvSelectedTime = view.findViewById(R.id.tvSelectedTime)
+        tvSetupReward = view.findViewById(R.id.tvSetupReward)
+        tvActiveXpHint = view.findViewById(R.id.tvActiveXpHint)
+        tvSuccessMessage = view.findViewById(R.id.tvSuccessMessage)
+        tvSuccessReward = view.findViewById(R.id.tvSuccessReward)
+        tvInterruptedMessage = view.findViewById(R.id.tvInterruptedMessage)
+
         btnStart = view.findViewById(R.id.btnStartFocus)
         btnStop = view.findViewById(R.id.btnStopFocus)
-        tvSelectedTime = view.findViewById(R.id.tvSelectedTime)
-        layoutSelector = view.findViewById(R.id.layoutTimeSelector)
+        btnSuccessReset = view.findViewById(R.id.btnSuccessReset)
+        btnInterruptedReset = view.findViewById(R.id.btnInterruptedReset)
 
-        // ── Bind new IDs ──
         circularProgress = view.findViewById(R.id.circularProgress)
         chipGroup = view.findViewById(R.id.chipGroupDuration)
 
-        currentUserId = activity?.intent?.getIntExtra("USER_ID", -1) ?: -1
+        val prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        currentUserId = prefs.getInt("USER_ID", -1)
 
-        // ── ChipGroup duration selection (replaces SeekBar) ──
+        circularProgress.max = 100
+        circularProgress.progress = 100
+
         chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 selectedMinutes = when (checkedIds.first()) {
@@ -70,30 +100,27 @@ class FocusFragment : Fragment() {
                     R.id.chip60 -> 60
                     else -> 25
                 }
-                timeLeftInMillis = selectedMinutes * 60 * 1000L
-                totalTimeInMillis = timeLeftInMillis
-                updateCountDownText()
-                circularProgress.setProgressCompat(100, true)
+                resetTimerValues()
+                bindSessionCopy()
             }
         }
 
-        // ── Init circular progress (full ring = idle state) ──
-        circularProgress.max = 100
-        circularProgress.progress = 100
-
-        // ── Button listeners ──
         btnStart.setOnClickListener { startTimer() }
         btnStop.setOnClickListener { stopTimer() }
+        btnSuccessReset.setOnClickListener { resetToSetup() }
+        btnInterruptedReset.setOnClickListener { resetToSetup() }
 
-        updateCountDownText()
+        resetTimerValues()
+        bindSessionCopy()
+        renderState(FocusUiState.SETUP)
+
         return view
     }
 
-    // ────────────────────────────────────────────────────────
-    // State 2 → Running
-    // ────────────────────────────────────────────────────────
     private fun startTimer() {
-        totalTimeInMillis = selectedMinutes * 60 * 1000L
+        timer?.cancel()
+        resetTimerValues()
+        renderState(FocusUiState.ACTIVE)
 
         timer = object : CountDownTimer(timeLeftInMillis, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -103,64 +130,67 @@ class FocusFragment : Fragment() {
             }
 
             override fun onFinish() {
-                isTimerRunning = false
+                timer = null
                 timeLeftInMillis = 0
                 updateCountDownText()
                 circularProgress.setProgressCompat(0, true)
-
+                tvSuccessMessage.text = "You stayed focused for $selectedMinutes minutes."
+                tvSuccessReward.text = "+$selectedMinutes XP"
+                renderState(FocusUiState.SUCCESS)
                 submitFocusSession()
-                resetTimerUI()
             }
         }.start()
-
-        isTimerRunning = true
-
-        // UI → Running state
-        btnStart.visibility = View.GONE
-        btnStop.visibility = View.VISIBLE
-        layoutSelector.visibility = View.GONE
-
-        // Hide bottom navigation for an immersive focus experience
-        (activity as? HomeActivity)?.setBottomNavVisibility(false)
     }
 
-    // ────────────────────────────────────────────────────────
-    // Give Up → back to Idle
-    // ────────────────────────────────────────────────────────
     private fun stopTimer() {
         timer?.cancel()
-        isTimerRunning = false
-        timeLeftInMillis = selectedMinutes * 60 * 1000L
-        updateCountDownText()
-        resetTimerUI()
-        Toast.makeText(context, "Focus session cancelled", Toast.LENGTH_SHORT).show()
+        timer = null
+        tvInterruptedMessage.text = "No XP awarded this time. You can start another session when ready."
+        renderState(FocusUiState.INTERRUPTED)
     }
 
-    // ────────────────────────────────────────────────────────
-    // State 1 → Idle  (reset everything)
-    // ────────────────────────────────────────────────────────
-    @SuppressLint("SetTextI18n")
-    private fun resetTimerUI() {
-        btnStart.visibility = View.VISIBLE
-        btnStop.visibility = View.GONE
-        layoutSelector.visibility = View.VISIBLE
-
-        timeLeftInMillis = selectedMinutes * 60 * 1000L
-        totalTimeInMillis = timeLeftInMillis
-        circularProgress.setProgressCompat(100, true)
-        updateCountDownText()
-
-        // Restore bottom navigation
-        (activity as? HomeActivity)?.setBottomNavVisibility(true)
+    private fun resetToSetup() {
+        timer?.cancel()
+        timer = null
+        resetTimerValues()
+        bindSessionCopy()
+        renderState(FocusUiState.SETUP)
     }
 
-    // ────────────────────────────────────────────────────────
-    // Update helpers
-    // ────────────────────────────────────────────────────────
+    private fun renderState(state: FocusUiState) {
+        uiState = state
+
+        layoutFocusSetup.visibility =
+            if (state == FocusUiState.SETUP) View.VISIBLE else View.GONE
+        layoutFocusActive.visibility =
+            if (state == FocusUiState.ACTIVE) View.VISIBLE else View.GONE
+        layoutFocusSuccess.visibility =
+            if (state == FocusUiState.SUCCESS) View.VISIBLE else View.GONE
+        layoutFocusInterrupted.visibility =
+            if (state == FocusUiState.INTERRUPTED) View.VISIBLE else View.GONE
+
+        val showBottomNav = state == FocusUiState.SETUP
+        (activity as? HomeActivity)?.setBottomNavVisibility(showBottomNav)
+    }
+
+    private fun resetTimerValues() {
+        totalTimeInMillis = selectedMinutes * 60 * 1000L
+        timeLeftInMillis = totalTimeInMillis
+        circularProgress.setProgressCompat(100, false)
+        updateCountDownText()
+    }
+
+    private fun bindSessionCopy() {
+        val previewText = formatTime((selectedMinutes * 60).toLong())
+        tvTimerPreview.text = previewText
+        tvSelectedTime.text = "Selected duration • $selectedMinutes min"
+        tvSetupReward.text = "Complete $selectedMinutes min to earn $selectedMinutes XP."
+        tvActiveXpHint.text = "This session is worth $selectedMinutes XP."
+        tvSuccessReward.text = "+$selectedMinutes XP"
+    }
+
     private fun updateCountDownText() {
-        val minutes = (timeLeftInMillis / 1000) / 60
-        val seconds = (timeLeftInMillis / 1000) % 60
-        tvTimer.text = String.format(Locale.US, "%02d:%02d", minutes, seconds)
+        tvTimer.text = formatTime(timeLeftInMillis / 1000)
     }
 
     private fun updateCircularProgress() {
@@ -170,40 +200,37 @@ class FocusFragment : Fragment() {
         }
     }
 
-    // ────────────────────────────────────────────────────────
-    // Submit XP to backend (unchanged logic)
-    // ────────────────────────────────────────────────────────
+    private fun formatTime(totalSeconds: Long): String {
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format(Locale.US, "%02d:%02d", minutes, seconds)
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun submitFocusSession() {
-        if (currentUserId == -1) return
-        val minutesToSend = if (selectedMinutes < 1) 1 else selectedMinutes
+        if (currentUserId == -1) {
+            return
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val request = FocusRequest(currentUserId, minutesToSend)
-                val response = RetrofitClient.instance.addFocusXP(request)
-
-                withContext(Dispatchers.Main) {
-                    android.app.AlertDialog.Builder(context)
-                        .setTitle("Focus Complete!")
-                        .setMessage(response.message)
-                        .setPositiveButton("Awesome!") { _, _ -> }
-                        .show()
-                }
+                val request = FocusRequest(currentUserId, selectedMinutes.coerceAtLeast(1))
+                RetrofitClient.instance.addFocusXP(request)
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Network Error: ${e.message}", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(
+                        context,
+                        "Focus session completed, but syncing XP failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
     }
 
-    // ────────────────────────────────────────────────────────
-    // Cleanup — cancel timer & restore nav if fragment is destroyed
-    // ────────────────────────────────────────────────────────
     override fun onDestroyView() {
-        super.onDestroyView()
         timer?.cancel()
         (activity as? HomeActivity)?.setBottomNavVisibility(true)
+        super.onDestroyView()
     }
 }

@@ -7,14 +7,13 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_tasks">
 
-    <!-- ==================== Scrollable Content ==================== -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
         android:clipToPadding="false"
-        android:paddingBottom="80dp"
+        android:fillViewport="true"
+        android:paddingBottom="96dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,148 +22,240 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="28dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="24dp">
 
-            <!-- ==================== Player Stats Header ==================== -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardPlayerStats"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:cardBackgroundColor="@color/md_surface"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="20dp">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                    <!-- Greeting (large, bold) -->
                     <TextView
                         android:id="@+id/tvGreeting"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:textColor="#1A1A2E"
+                        android:textColor="@color/md_on_background"
                         android:textSize="24sp"
                         android:textStyle="bold"
-                        tools:text="Hi, Student \uD83D\uDC4B"
-                        app:layout_constraintEnd_toStartOf="@+id/btnCalendar"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        tools:text="Hi, Student" />
 
-                    <!-- Calendar / Timetable button -->
+                    <TextView
+                        android:id="@+id/tvLevelXp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="14sp"
+                        tools:text="Level 1 • 0/100 XP" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnNotes"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@color/md_surface"
+                        android:contentDescription="Notebook"
+                        android:elevation="2dp"
+                        android:padding="10dp"
+                        android:src="@android:drawable/ic_menu_edit"
+                        app:tint="@color/md_on_surface_variant" />
+
                     <ImageButton
                         android:id="@+id/btnCalendar"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Calendar"
-                        android:scaleType="centerInside"
+                        android:layout_marginStart="10dp"
+                        android:background="@color/md_surface"
+                        android:contentDescription="Timetable"
+                        android:elevation="2dp"
+                        android:padding="10dp"
                         android:src="@android:drawable/ic_menu_my_calendar"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:tint="@color/md_secondary_variant" />
+                        app:tint="@color/md_on_surface_variant" />
+                </LinearLayout>
+            </LinearLayout>
 
-                    <!-- Level & XP row -->
+            <ProgressBar
+                android:id="@+id/xpProgressBar"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="16dp"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/progress_xp_bar" />
+
+            <LinearLayout
+                android:id="@+id/layoutTaskSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_surface_panel"
+                android:orientation="horizontal"
+                android:padding="14dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_metric_tile"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
                     <TextView
-                        android:id="@+id/tvLevelXp"
-                        android:layout_width="0dp"
+                        android:id="@+id/tvActiveCount"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:fontFamily="sans-serif-medium"
+                        android:fontFamily="sans-serif-black"
+                        android:textColor="@color/md_on_background"
+                        android:textSize="18sp"
+                        tools:text="4" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Active"
                         android:textColor="@color/md_on_surface_variant"
-                        android:textSize="14sp"
-                        tools:text="Level 1 \u2022 0/100 XP"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvGreeting" />
+                        android:textSize="12sp" />
+                </LinearLayout>
 
-                    <!-- XP Progress Bar (custom capsule drawable) -->
-                    <ProgressBar
-                        android:id="@+id/xpProgressBar"
-                        style="@android:style/Widget.ProgressBar.Horizontal"
-                        android:layout_width="0dp"
-                        android:layout_height="12dp"
-                        android:layout_marginTop="12dp"
-                        android:max="100"
-                        android:progress="0"
-                        android:progressDrawable="@drawable/progress_xp_bar"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvLevelXp" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_metric_tile"
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:id="@+id/tvDueSoonCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:textColor="@color/md_on_background"
+                        android:textSize="18sp"
+                        tools:text="2" />
 
-            <!-- ==================== Active Section Title ==================== -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Due Soon"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_metric_tile"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/tvCompletedCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:textColor="@color/md_on_background"
+                        android:textSize="18sp"
+                        tools:text="7" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Completed"
+                        android:textColor="@color/md_on_surface_variant"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTaskSummaryCaption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans-serif"
+                android:text="Stay on top of the next deadline and keep your streak moving."
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="13sp" />
+
             <TextView
                 android:id="@+id/tvSectionTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginTop="24dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="My Tasks"
+                android:text="Active Tasks"
                 android:textColor="@color/md_on_background"
-                android:textSize="16sp" />
+                android:textSize="18sp" />
 
-            <!-- ==================== Incomplete Task List ==================== -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTasksIncomplete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"
-                android:clipToPadding="false" />
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false" />
 
-            <!-- ==================== Empty state for active tasks ==================== -->
             <TextView
                 android:id="@+id/tvEmptyActive"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_surface_panel"
                 android:fontFamily="sans-serif"
                 android:gravity="center"
-                android:text="No active tasks — tap + to add one"
-                android:textColor="@color/md_outline"
+                android:padding="18dp"
+                android:text="No active tasks. Tap + to add one or open Notebook for quick planning."
+                android:textColor="@color/md_on_surface_variant"
                 android:textSize="14sp"
                 android:visibility="gone" />
 
-            <!-- ==================== Completed Section Header ==================== -->
             <TextView
                 android:id="@+id/tvHeaderCompleted"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginTop="28dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="Completed"
                 android:textColor="@color/md_on_background"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:visibility="gone" />
 
-            <!-- ==================== Completed Task List ==================== -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTasksCompleted"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"
+                android:layout_marginTop="12dp"
                 android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
                 android:visibility="gone" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ==================== Loading Spinner (EXISTING ID: progressBar) ==================== -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -176,17 +267,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- ==================== Add Task FAB (EXISTING ID: fabAddTask) ==================== -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddTask"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="24dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="96dp"
         android:contentDescription="Add Task"
         android:src="@android:drawable/ic_input_add"
         app:backgroundTint="@color/md_primary"
-        app:tint="@color/md_on_primary"
+        app:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@android:color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

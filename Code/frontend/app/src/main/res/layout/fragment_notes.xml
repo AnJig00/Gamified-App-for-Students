@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_notes">
+
+    <LinearLayout
+        android:id="@+id/layoutNotesTopBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBackNotes"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@color/md_surface"
+            android:contentDescription="Go back"
+            android:elevation="2dp"
+            android:padding="10dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:tint="@color/md_on_surface" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvNotesTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/md_on_background"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:text="Notebook" />
+
+            <TextView
+                android:id="@+id/tvNotesSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="13sp"
+                tools:text="Quick markdown notes for classes, tasks and reminders." />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddNote"
+            style="@style/Widget.App.Button.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="44dp"
+            android:text="New Note"
+            app:icon="@android:drawable/ic_input_add"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconTint="@color/md_on_primary" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvMarkdownHint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/bg_xp_badge"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:text="Markdown supported: # headings, lists, checkboxes and bold text."
+        android:textColor="@color/md_on_primary_container"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutNotesTopBar" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvNotes"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingStart="24dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="28dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvMarkdownHint"
+        tools:listitem="@layout/item_note" />
+
+    <TextView
+        android:id="@+id/tvEmptyNotes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:textColor="@color/md_on_surface_variant"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rvNotes"
+        app:layout_constraintEnd_toEndOf="@id/rvNotes"
+        app:layout_constraintStart_toStartOf="@id/rvNotes"
+        app:layout_constraintTop_toTopOf="@id/rvNotes"
+        tools:text="Your notebook is empty. Start with a quick markdown note or a course note." />
+
+    <ProgressBar
+        android:id="@+id/progressBarNotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/md_primary"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rvNotes"
+        app:layout_constraintEnd_toEndOf="@id/rvNotes"
+        app:layout_constraintStart_toStartOf="@id/rvNotes"
+        app:layout_constraintTop_toTopOf="@id/rvNotes" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

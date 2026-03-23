@@ -5,174 +5,395 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/md_background">
-
-
-    <TextView
-        android:id="@+id/tvFocusTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="Focus Mode"
-        android:textColor="@color/md_on_background"
-        android:textSize="22sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/circularProgress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:max="100"
-        android:progress="100"
-        app:indicatorColor="@color/md_primary"
-        app:indicatorSize="250dp"
-        app:trackColor="@color/md_surface_variant"
-        app:trackCornerRadius="6dp"
-        app:trackThickness="12dp"
-        app:layout_constraintBottom_toTopOf="@id/tvXpHint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvFocusTitle"
-        app:layout_constraintVertical_bias="0.42"
-        app:layout_constraintVertical_chainStyle="packed" />
-
-    <TextView
-        android:id="@+id/tvTimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:textColor="@color/md_on_background"
-        android:textSize="56sp"
-        tools:text="25:00"
-        app:layout_constraintBottom_toBottomOf="@id/circularProgress"
-        app:layout_constraintEnd_toEndOf="@id/circularProgress"
-        app:layout_constraintStart_toStartOf="@id/circularProgress"
-        app:layout_constraintTop_toTopOf="@id/circularProgress" />
-
-    <TextView
-        android:id="@+id/tvXpHint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="sans-serif"
-        android:text="Earn 1 XP per minute"
-        android:textColor="@color/md_on_surface_variant"
-        android:textSize="13sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/circularProgress" />
+    android:background="@drawable/bg_gradient_focus">
 
     <LinearLayout
-        android:id="@+id/layoutTimeSelector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
+        android:id="@+id/layoutFocusSetup"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvXpHint">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/tvSelectedTime"
+            android:id="@+id/tvFocusTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif-medium"
-            android:text="Select Duration"
+            android:text="Focus Mode"
+            android:textColor="@color/md_on_background"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/tvFocusSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif"
+            android:text="Stay focused and earn rewards for deep work."
             android:textColor="@color/md_on_surface_variant"
             android:textSize="14sp" />
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupDuration"
-            android:layout_width="wrap_content"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardFocusHero"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:checkedChip="@id/chip25"
-            app:chipSpacingHorizontal="12dp"
-            app:selectionRequired="true"
-            app:singleSelection="true">
+            android:layout_marginTop="28dp"
+            app:cardBackgroundColor="@color/md_surface"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/md_outline"
+            app:strokeWidth="1dp">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip25"
-                style="@style/Widget.Material3.Chip.Filter"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="28dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Next session"
+                    android:textColor="@color/md_on_surface_variant"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvTimerPreview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="sans-serif-light"
+                    android:textColor="@color/md_on_background"
+                    android:textSize="54sp"
+                    tools:text="25:00" />
+
+                <TextView
+                    android:id="@+id/tvSelectedTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/md_primary"
+                    android:textSize="14sp"
+                    tools:text="Selected duration · 25 min" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/layoutTimeSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical">
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="25 min"
+                android:fontFamily="sans-serif-medium"
+                android:text="Choose a duration"
                 android:textColor="@color/md_on_surface"
-                app:chipBackgroundColor="@color/md_surface"
-                app:chipCornerRadius="20dp"
-                app:chipStrokeColor="@color/md_outline"
-                app:chipStrokeWidth="1dp" />
+                android:textSize="15sp" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip45"
-                style="@style/Widget.Material3.Chip.Filter"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="45 min"
-                android:textColor="@color/md_on_surface"
-                app:chipBackgroundColor="@color/md_surface"
-                app:chipCornerRadius="20dp"
-                app:chipStrokeColor="@color/md_outline"
-                app:chipStrokeWidth="1dp" />
+                android:layout_marginTop="12dp"
+                app:checkedChip="@id/chip25"
+                app:chipSpacingHorizontal="12dp"
+                app:selectionRequired="true"
+                app:singleSelection="true">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip60"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip25"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="25 min"
+                    app:chipBackgroundColor="@color/md_surface"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/md_outline"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip45"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="45 min"
+                    app:chipBackgroundColor="@color/md_surface"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/md_outline"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip60"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="60 min"
+                    app:chipBackgroundColor="@color/md_surface"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/md_outline"
+                    app:chipStrokeWidth="1dp" />
+
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardFocusReward"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:cardBackgroundColor="@color/md_primary_container"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp">
+
+            <TextView
+                android:id="@+id/tvSetupReward"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="60 min"
-                android:textColor="@color/md_on_surface"
-                app:chipBackgroundColor="@color/md_surface"
-                app:chipCornerRadius="20dp"
-                app:chipStrokeColor="@color/md_outline"
-                app:chipStrokeWidth="1dp" />
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="18dp"
+                android:textColor="@color/md_on_primary_container"
+                android:textSize="14sp"
+                tools:text="Complete 25 min to earn 25 XP." />
+        </com.google.android.material.card.MaterialCardView>
 
-        </com.google.android.material.chip.ChipGroup>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStartFocus"
+            style="@style/Widget.App.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Start focus session"
+            android:textSize="16sp" />
+
     </LinearLayout>
 
-    <SeekBar
-        android:id="@+id/seekBarTime"
+    <LinearLayout
+        android:id="@+id/layoutFocusActive"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:max="120"
-        android:progress="25"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnStartFocus"
-        android:layout_width="220dp"
-        android:layout_height="56dp"
-        android:layout_marginBottom="36dp"
-        android:text="Start Focus"
-        android:textSize="16sp"
-        app:backgroundTint="@color/md_primary"
-        app:cornerRadius="28dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/tvActiveTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="Stay Focused"
+            android:textColor="@color/md_on_background"
+            android:textSize="24sp" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnStopFocus"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="220dp"
-        android:layout_height="56dp"
-        android:layout_marginBottom="36dp"
-        android:text="Give Up"
-        android:textColor="@color/md_error"
-        android:textSize="16sp"
+        <TextView
+            android:id="@+id/tvActiveSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif"
+            android:text="Keep this screen open and stay in the flow."
+            android:textColor="@color/md_on_surface_variant"
+            android:textSize="14sp" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/circularProgress"
+                android:layout_width="260dp"
+                android:layout_height="260dp"
+                android:max="100"
+                android:progress="100"
+                app:indicatorColor="@color/md_primary"
+                app:indicatorSize="260dp"
+                app:trackColor="@color/md_outline"
+                app:trackThickness="12dp" />
+
+            <TextView
+                android:id="@+id/tvTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/md_on_background"
+                android:textSize="52sp"
+                tools:text="25:00" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvActiveXpHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/md_primary"
+            android:textSize="14sp"
+            tools:text="This session is worth 25 XP." />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStopFocus"
+            style="@style/Widget.App.Button.Outline"
+            android:layout_width="220dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="28dp"
+            android:text="End Session"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutFocusSuccess"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
         android:visibility="gone"
-        app:cornerRadius="28dp"
-        app:strokeColor="@color/md_error"
-        app:strokeWidth="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:background="@drawable/bg_focus_success_circle">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_check_circle_filled"
+                android:tint="@color/app_success_text" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvSuccessTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Session Complete"
+            android:textColor="@color/md_on_background"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/tvSuccessMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textColor="@color/md_on_surface_variant"
+            android:textSize="14sp"
+            tools:text="You stayed focused for 25 minutes." />
+
+        <TextView
+            android:id="@+id/tvSuccessReward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_xp_badge"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:textColor="@color/app_warning_text"
+            android:textSize="14sp"
+            tools:text="+25 XP" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSuccessReset"
+            style="@style/Widget.App.Button.Primary"
+            android:layout_width="220dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="28dp"
+            android:text="Back to Focus"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutFocusInterrupted"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:background="@drawable/bg_focus_interrupted_circle">
+
+            <ImageView
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="@color/md_error" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvInterruptedTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Session Ended"
+            android:textColor="@color/md_on_background"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/tvInterruptedMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textColor="@color/md_on_surface_variant"
+            android:textSize="14sp"
+            tools:text="No XP awarded this time. You can start another session when ready." />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnInterruptedReset"
+            style="@style/Widget.App.Button.Primary"
+            android:layout_width="220dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="28dp"
+            android:text="Try Again"
+            android:textSize="16sp" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

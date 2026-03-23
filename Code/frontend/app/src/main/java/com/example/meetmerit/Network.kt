@@ -34,6 +34,25 @@ data class Task(
     val dueDate: String? = null
 )
 
+data class Note(
+    val id: Int,
+    val title: String,
+    @SerializedName("content_markdown")
+    val contentMarkdown: String,
+    @SerializedName("note_type")
+    val noteType: String,
+    @SerializedName("course_name")
+    val courseName: String = "",
+    @SerializedName("linked_task")
+    val linkedTaskId: Int? = null,
+    @SerializedName("linked_timetable_entry")
+    val linkedTimetableEntryId: Int? = null,
+    @SerializedName("created_at")
+    val createdAt: String? = null,
+    @SerializedName("updated_at")
+    val updatedAt: String? = null
+)
+
 data class TimetableEntry(
     val id: Int,
     @SerializedName("course_name")
@@ -53,6 +72,101 @@ data class LeaderboardEntry(
     val level: Int
 )
 
+data class LeagueStatusResponse(
+    @SerializedName("league_code")
+    val leagueCode: String,
+    @SerializedName("league_name")
+    val leagueName: String,
+    @SerializedName("league_tier")
+    val leagueTier: Int,
+    @SerializedName("is_top_league")
+    val isTopLeague: Boolean,
+    @SerializedName("is_bottom_league")
+    val isBottomLeague: Boolean,
+    @SerializedName("week_start")
+    val weekStart: String,
+    @SerializedName("week_end")
+    val weekEnd: String,
+    @SerializedName("week_label")
+    val weekLabel: String,
+    @SerializedName("weekly_xp")
+    val weeklyXp: Int,
+    val rank: Int?,
+    val participants: Int,
+    @SerializedName("promotion_slots")
+    val promotionSlots: Int,
+    @SerializedName("relegation_slots")
+    val relegationSlots: Int,
+    @SerializedName("promotion_cutoff_rank")
+    val promotionCutoffRank: Int?,
+    @SerializedName("relegation_cutoff_rank")
+    val relegationCutoffRank: Int?,
+    @SerializedName("points_to_promotion")
+    val pointsToPromotion: Int?,
+    @SerializedName("points_above_relegation")
+    val pointsAboveRelegation: Int?,
+    @SerializedName("last_outcome")
+    val lastOutcome: String,
+    @SerializedName("last_outcome_label")
+    val lastOutcomeLabel: String
+)
+
+data class LeagueLeaderboardUser(
+    val rank: Int,
+    val username: String,
+    @SerializedName("weekly_xp")
+    val weeklyXp: Int,
+    val level: Int,
+    @SerializedName("is_current_user")
+    val isCurrentUser: Boolean
+)
+
+data class LeagueLeaderboardResponse(
+    @SerializedName("league_code")
+    val leagueCode: String,
+    @SerializedName("league_name")
+    val leagueName: String,
+    @SerializedName("week_start")
+    val weekStart: String,
+    @SerializedName("week_end")
+    val weekEnd: String,
+    @SerializedName("week_label")
+    val weekLabel: String,
+    val participants: Int,
+    @SerializedName("promotion_slots")
+    val promotionSlots: Int,
+    @SerializedName("relegation_slots")
+    val relegationSlots: Int,
+    val entries: List<LeagueLeaderboardUser>
+)
+
+data class ProfileResponse(
+    val username: String,
+    val email: String,
+    @SerializedName("current_xp")
+    val currentXp: Int,
+    val level: Int,
+    val credits: Int,
+    @SerializedName("global_rank")
+    val globalRank: Int,
+    @SerializedName("completed_tasks")
+    val completedTasks: Int,
+    @SerializedName("league_name")
+    val leagueName: String,
+    @SerializedName("weekly_xp")
+    val weeklyXp: Int,
+    @SerializedName("last_outcome_label")
+    val lastOutcomeLabel: String,
+    @SerializedName("xp_into_level")
+    val xpIntoLevel: Int,
+    @SerializedName("xp_per_level")
+    val xpPerLevel: Int,
+    @SerializedName("xp_remaining_to_next_level")
+    val xpRemainingToNextLevel: Int,
+    @SerializedName("progress_percent")
+    val progressPercent: Int
+)
+
 data class FocusRequest(
     val user_id: Int,
     val minutes: Int
@@ -60,10 +174,15 @@ data class FocusRequest(
 
 data class FocusResponse(
     val message: String,
-    val new_xp: Int
+    val new_xp: Int,
+    val weekly_xp: Int? = null
 )
 
-data class TaskCompleteResponse(val message: String, val new_xp: Int)
+data class TaskCompleteResponse(
+    val message: String,
+    val new_xp: Int,
+    val weekly_xp: Int? = null
+)
 
 interface ApiService {
     @POST("api/register/")
@@ -80,6 +199,41 @@ interface ApiService {
 
     @PATCH("api/tasks/{id}/")
     suspend fun completeTask(@Path("id") id: Int, @Query("user_id") userId: Int, @Body task: Task): TaskCompleteResponse
+
+    @DELETE("api/tasks/{id}/")
+    suspend fun deleteTask(
+        @Path("id") id: Int,
+        @Query("user_id") userId: Int
+    ): Response<Unit>
+
+    @GET("api/notes/")
+    suspend fun getNotes(
+        @Query("user_id") userId: Int,
+        @Query("linked_task_id") linkedTaskId: Int? = null,
+        @Query("linked_timetable_entry_id") linkedTimetableEntryId: Int? = null,
+        @Query("note_type") noteType: String? = null,
+        @Query("course_name") courseName: String? = null,
+        @Query("query") query: String? = null
+    ): List<Note>
+
+    @POST("api/notes/")
+    suspend fun createNote(
+        @Query("user_id") userId: Int,
+        @Body note: Note
+    ): Note
+
+    @PATCH("api/notes/{id}/")
+    suspend fun updateNote(
+        @Path("id") id: Int,
+        @Query("user_id") userId: Int,
+        @Body note: Note
+    ): Note
+
+    @DELETE("api/notes/{id}/")
+    suspend fun deleteNote(
+        @Path("id") id: Int,
+        @Query("user_id") userId: Int
+    ): Response<Unit>
 
     @GET("api/timetable/")
     suspend fun getTimetable(@Query("user_id") userId: Int): List<TimetableEntry>
@@ -106,17 +260,24 @@ interface ApiService {
     @GET("api/leaderboard/")
     suspend fun getLeaderboard(): List<LeaderboardEntry>
 
+    @GET("api/profile/")
+    suspend fun getProfile(@Query("user_id") userId: Int): ProfileResponse
+
+    @GET("api/league/status/")
+    suspend fun getLeagueStatus(@Query("user_id") userId: Int): LeagueStatusResponse
+
+    @GET("api/league/leaderboard/")
+    suspend fun getLeagueLeaderboard(@Query("user_id") userId: Int): LeagueLeaderboardResponse
+
     @POST("api/focus/")
     suspend fun addFocusXP(@Body request: FocusRequest): FocusResponse
 }
 
 
 object RetrofitClient {
-    //private const val BASE_URL = "http://10.0.2.2:8000/"  // Virtual
-    private const val BASE_URL = "https://meet-merit-app-fc548669a22d.herokuapp.com/"   //Real
     val instance: ApiService by lazy {
         val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

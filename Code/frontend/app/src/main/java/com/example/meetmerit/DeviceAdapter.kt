@@ -26,7 +26,7 @@ class DeviceAdapter(
     @SuppressLint("MissingPermission")
     override fun onBindViewHolder(holder: DeviceViewHolder, position: Int) {
         val device = devices[position]
-        holder.tvName.text = device.name ?: "Unknown Device"
+        holder.tvName.text = device.name ?: "Nearby student"
         holder.tvAddress.text = device.address
 
         holder.itemView.setOnClickListener {
@@ -42,4 +42,11 @@ class DeviceAdapter(
             notifyItemInserted(devices.size - 1)
         }
     }
+
+    fun clearDevices() {
+        devices.clear()
+        notifyDataSetChanged()
+    }
+
+    fun hasDevices(): Boolean = devices.isNotEmpty()
 }

@@ -8,6 +8,50 @@ from .league_services import award_student_xp, get_current_league_week, settle_l
 from .models import LeagueMembership, Note, Student, Task, TimetableEntry
 
 
+class TaskApiTests(APITestCase):
+    def setUp(self):
+        self.student = Student.objects.create_user(
+            username='tasks_alice',
+            email='tasks_alice@example.com',
+            password='password123',
+        )
+        self.other_student = Student.objects.create_user(
+            username='tasks_bob',
+            email='tasks_bob@example.com',
+            password='password123',
+        )
+
+    def test_delete_task_removes_it_from_database(self):
+        task = Task.objects.create(
+            user=self.student,
+            title='Temporary reminder',
+            is_completed=False,
+        )
+
+        response = self.client.delete(
+            f"{reverse('task-detail', args=[task.id])}?user_id={self.student.id}",
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Task.objects.filter(id=task.id).exists())
+
+    def test_delete_task_rejects_other_users_item(self):
+        task = Task.objects.create(
+            user=self.other_student,
+            title='Private task',
+            is_completed=False,
+        )
+
+        response = self.client.delete(
+            f"{reverse('task-detail', args=[task.id])}?user_id={self.student.id}",
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertTrue(Task.objects.filter(id=task.id).exists())
+
+
 class TimetableApiTests(APITestCase):
     def setUp(self):
         self.student = Student.objects.create_user(

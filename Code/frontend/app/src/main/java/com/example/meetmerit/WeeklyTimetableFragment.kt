@@ -1,12 +1,14 @@
 package com.example.meetmerit
 
+import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.ImageButton
+import android.view.Window
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -14,10 +16,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
@@ -25,24 +26,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
-import java.util.Locale
 
 class WeeklyTimetableFragment : Fragment() {
 
     private lateinit var adapter: TimetableAdapter
     private lateinit var progressBar: ProgressBar
     private lateinit var tvEmptyState: TextView
-    private lateinit var tvWeekSummary: TextView
+    private lateinit var tvWeeklyClassCount: TextView
+    private lateinit var tvActiveDayCount: TextView
+    private lateinit var tvNextClassSummary: TextView
     private var currentUserId: Int = -1
 
     private val dayOptions = listOf(
-        "Monday" to 1,
-        "Tuesday" to 2,
-        "Wednesday" to 3,
-        "Thursday" to 4,
-        "Friday" to 5,
-        "Saturday" to 6,
-        "Sunday" to 7
+        "Mon" to 1,
+        "Tue" to 2,
+        "Wed" to 3,
+        "Thu" to 4,
+        "Fri" to 5,
+        "Sat" to 6,
+        "Sun" to 7
     )
 
     override fun onCreateView(
@@ -58,27 +60,35 @@ class WeeklyTimetableFragment : Fragment() {
 
         progressBar = view.findViewById(R.id.progressBarTimetable)
         tvEmptyState = view.findViewById(R.id.tvEmptyTimetable)
-        tvWeekSummary = view.findViewById(R.id.tvWeekSummary)
+        tvWeeklyClassCount = view.findViewById(R.id.tvWeeklyClassCount)
+        tvActiveDayCount = view.findViewById(R.id.tvActiveDayCount)
+        tvNextClassSummary = view.findViewById(R.id.tvNextClassSummary)
 
-        val btnBack = view.findViewById<ImageButton>(R.id.btnBackTimetable)
-        val fabAddClass = view.findViewById<FloatingActionButton>(R.id.fabAddClass)
+        val btnAddClass = view.findViewById<MaterialButton>(R.id.btnAddClass)
+        val btnNotes = view.findViewById<MaterialButton>(R.id.btnTimetableNotes)
+        val btnDoneTimetable = view.findViewById<MaterialButton>(R.id.btnDoneTimetable)
         val rvTimetable = view.findViewById<RecyclerView>(R.id.rvTimetable)
 
         val prefs = activity?.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         currentUserId = prefs?.getInt("USER_ID", -1) ?: -1
 
-        adapter = TimetableAdapter(emptyList()) { entry ->
-            showTimetableEntryDialog(entry)
-        }
+        adapter = TimetableAdapter(
+            sections = emptyList(),
+            onEntryClick = { entry -> showTimetableEntryDialog(entry) },
+            onEntryDelete = { entry -> deleteTimetableEntry(entry) },
+            onEntryNotesClick = { entry -> openClassNotes(entry) }
+        )
         rvTimetable.layoutManager = LinearLayoutManager(context)
         rvTimetable.adapter = adapter
 
-        btnBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        fabAddClass.setOnClickListener {
+        btnAddClass.setOnClickListener {
             showTimetableEntryDialog(null)
+        }
+        btnNotes.setOnClickListener {
+            findNavController().navigate(R.id.notesFragment, NotesNavigation.notebookArgs())
+        }
+        btnDoneTimetable.setOnClickListener {
+            findNavController().navigateUp()
         }
 
         if (currentUserId == -1) {
@@ -125,106 +135,96 @@ class WeeklyTimetableFragment : Fragment() {
 
     private fun renderTimetable(entries: List<TimetableEntry>) {
         tvEmptyState.visibility = if (entries.isEmpty()) View.VISIBLE else View.GONE
-        tvWeekSummary.text = if (entries.isEmpty()) {
-            "No classes scheduled yet"
-        } else {
-            "${entries.size} classes scheduled this week"
+        tvWeeklyClassCount.text = entries.size.toString()
+        tvActiveDayCount.text = entries.map { it.dayOfWeek }.distinct().size.toString()
+        tvNextClassSummary.text = buildNextClassSummary(entries)
+
+        val sections = dayOptions.map { (label, dayValue) ->
+            TimetableDaySection(
+                label = label,
+                entries = entries.filter { it.dayOfWeek == dayValue }
+            )
         }
 
-        val listItems = mutableListOf<TimetableListItem>()
-        dayOptions.forEach { (label, dayValue) ->
-            val dayEntries = entries.filter { it.dayOfWeek == dayValue }
-            if (dayEntries.isNotEmpty()) {
-                listItems.add(TimetableListItem.DayHeader(label))
-                dayEntries.forEach { entry ->
-                    listItems.add(TimetableListItem.EntryRow(entry))
-                }
-            }
-        }
-
-        adapter.updateData(listItems)
+        adapter.updateData(sections)
     }
 
     private fun showTimetableEntryDialog(existingEntry: TimetableEntry?) {
-        val dialog = BottomSheetDialog(requireContext(), R.style.ThemeOverlay_App_BottomSheet)
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_add_timetable_entry, null)
         dialog.setContentView(dialogView)
-
-        val bottomSheet = dialog.findViewById<View>(
-            com.google.android.material.R.id.design_bottom_sheet
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.92f).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        bottomSheet?.setBackgroundResource(android.R.color.transparent)
 
         val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val btnDialogClose = dialogView.findViewById<View>(R.id.btnDialogClose)
         val tilCourseName = dialogView.findViewById<TextInputLayout>(R.id.tilCourseName)
         val etCourseName = dialogView.findViewById<TextInputEditText>(R.id.etCourseName)
-        val tilDayOfWeek = dialogView.findViewById<TextInputLayout>(R.id.tilDayOfWeek)
-        val actDayOfWeek = dialogView.findViewById<MaterialAutoCompleteTextView>(R.id.actDayOfWeek)
+        val chipGroupDays = dialogView.findViewById<ChipGroup>(R.id.chipGroupDays)
+        val tvDaySelectionError = dialogView.findViewById<TextView>(R.id.tvDaySelectionError)
         val tilStartTime = dialogView.findViewById<TextInputLayout>(R.id.tilStartTime)
         val etStartTime = dialogView.findViewById<TextInputEditText>(R.id.etStartTime)
         val tilEndTime = dialogView.findViewById<TextInputLayout>(R.id.tilEndTime)
         val etEndTime = dialogView.findViewById<TextInputEditText>(R.id.etEndTime)
         val tilClassroom = dialogView.findViewById<TextInputLayout>(R.id.tilClassroom)
         val etClassroom = dialogView.findViewById<TextInputEditText>(R.id.etClassroom)
-        val btnCancel = dialogView.findViewById<MaterialButton>(R.id.btnDialogCancel)
         val btnDelete = dialogView.findViewById<MaterialButton>(R.id.btnDialogDelete)
         val btnSave = dialogView.findViewById<MaterialButton>(R.id.btnDialogSave)
 
-        val dayLabels = dayOptions.map { it.first }
-        actDayOfWeek.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, dayLabels)
+        val dayChipIds = listOf(
+            R.id.chipMonday to 1,
+            R.id.chipTuesday to 2,
+            R.id.chipWednesday to 3,
+            R.id.chipThursday to 4,
+            R.id.chipFriday to 5,
+            R.id.chipSaturday to 6,
+            R.id.chipSunday to 7
         )
 
-        var selectedDayValue = existingEntry?.dayOfWeek
-        var selectedStartTime = existingEntry?.startTime?.toDisplayTime()
-        var selectedEndTime = existingEntry?.endTime?.toDisplayTime()
+        var selectedStartTime = existingEntry?.startTime?.let(TimeOptionUtils::apiToDisplayTime)
+        var selectedEndTime = existingEntry?.endTime?.let(TimeOptionUtils::apiToDisplayTime)
 
         if (existingEntry == null) {
             tvDialogTitle.text = "Add Class"
+            btnSave.text = "Add Class"
             btnDelete.visibility = View.GONE
         } else {
             tvDialogTitle.text = "Edit Class"
-            btnSave.text = "Update"
+            btnSave.text = "Save Changes"
             etCourseName.setText(existingEntry.courseName)
-            val dayLabel = dayOptions.firstOrNull { it.second == existingEntry.dayOfWeek }?.first.orEmpty()
-            actDayOfWeek.setText(
-                dayLabel,
-                false
-            )
+            setSelectedDays(chipGroupDays, dayChipIds, listOf(existingEntry.dayOfWeek))
             etStartTime.setText(selectedStartTime)
             etEndTime.setText(selectedEndTime)
             etClassroom.setText(existingEntry.classroom)
             btnDelete.visibility = View.VISIBLE
         }
 
-        actDayOfWeek.setOnItemClickListener { _, _, position, _ ->
-            tilDayOfWeek.error = null
-            selectedDayValue = dayOptions[position].second
+        chipGroupDays.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                tvDaySelectionError.visibility = View.GONE
+            }
         }
 
-        val openStartTimePicker = {
-            showTimePicker(selectedStartTime) { selected ->
-                selectedStartTime = selected
+        etStartTime.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
                 tilStartTime.error = null
-                etStartTime.setText(selected)
             }
         }
-
-        val openEndTimePicker = {
-            showTimePicker(selectedEndTime) { selected ->
-                selectedEndTime = selected
+        etEndTime.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
                 tilEndTime.error = null
-                etEndTime.setText(selected)
             }
         }
+        etStartTime.setOnClickListener { tilStartTime.error = null }
+        etEndTime.setOnClickListener { tilEndTime.error = null }
 
-        etStartTime.setOnClickListener { openStartTimePicker() }
-        tilStartTime.setEndIconOnClickListener { openStartTimePicker() }
-        etEndTime.setOnClickListener { openEndTimePicker() }
-        tilEndTime.setEndIconOnClickListener { openEndTimePicker() }
-
-        btnCancel.setOnClickListener {
+        btnDialogClose.setOnClickListener {
             dialog.dismiss()
         }
 
@@ -237,13 +237,26 @@ class WeeklyTimetableFragment : Fragment() {
 
         btnSave.setOnClickListener {
             tilCourseName.error = null
-            tilDayOfWeek.error = null
+            tvDaySelectionError.visibility = View.GONE
             tilStartTime.error = null
             tilEndTime.error = null
             tilClassroom.error = null
 
             val courseName = etCourseName.text?.toString()?.trim().orEmpty()
             val classroom = etClassroom.text?.toString()?.trim().orEmpty()
+            val startTimeRaw = etStartTime.text?.toString()?.trim().orEmpty()
+            val endTimeRaw = etEndTime.text?.toString()?.trim().orEmpty()
+            selectedStartTime = if (startTimeRaw.isBlank()) {
+                null
+            } else {
+                TimeOptionUtils.normalizeUserDisplayTime(startTimeRaw)
+            }
+            selectedEndTime = if (endTimeRaw.isBlank()) {
+                null
+            } else {
+                TimeOptionUtils.normalizeUserDisplayTime(endTimeRaw)
+            }
+            val selectedDays = collectSelectedDays(chipGroupDays, dayChipIds)
 
             var hasError = false
 
@@ -252,18 +265,26 @@ class WeeklyTimetableFragment : Fragment() {
                 hasError = true
             }
 
-            if (selectedDayValue == null) {
-                tilDayOfWeek.error = "Please choose a day"
+            if (selectedDays.isEmpty()) {
+                tvDaySelectionError.visibility = View.VISIBLE
                 hasError = true
             }
 
             if (selectedStartTime.isNullOrBlank()) {
-                tilStartTime.error = "Start time is required"
+                tilStartTime.error = if (startTimeRaw.isBlank()) {
+                    "Start time is required"
+                } else {
+                    "Use a valid time like 9:00 AM or 14:30"
+                }
                 hasError = true
             }
 
             if (selectedEndTime.isNullOrBlank()) {
-                tilEndTime.error = "End time is required"
+                tilEndTime.error = if (endTimeRaw.isBlank()) {
+                    "End time is required"
+                } else {
+                    "Use a valid time like 10:30 AM or 16:30"
+                }
                 hasError = true
             }
 
@@ -273,7 +294,7 @@ class WeeklyTimetableFragment : Fragment() {
             }
 
             if (!selectedStartTime.isNullOrBlank() && !selectedEndTime.isNullOrBlank()) {
-                if (!isEndTimeLater(selectedStartTime!!, selectedEndTime!!)) {
+                if (!TimeOptionUtils.isEndAfterStart(selectedStartTime!!, selectedEndTime!!)) {
                     tilEndTime.error = "End time must be later than start time"
                     hasError = true
                 }
@@ -283,62 +304,92 @@ class WeeklyTimetableFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val timetableEntry = TimetableEntry(
-                id = existingEntry?.id ?: 0,
+            etStartTime.setText(selectedStartTime)
+            etEndTime.setText(selectedEndTime)
+
+            saveTimetableEntries(
+                existingEntry = existingEntry,
+                selectedDays = selectedDays,
                 courseName = courseName,
-                dayOfWeek = selectedDayValue!!,
-                startTime = selectedStartTime!!.toApiTime(),
-                endTime = selectedEndTime!!.toApiTime(),
+                startTime = selectedStartTime!!,
+                endTime = selectedEndTime!!,
                 classroom = classroom
             )
-
-            if (existingEntry == null) {
-                createTimetableEntry(timetableEntry)
-            } else {
-                updateTimetableEntry(timetableEntry)
-            }
-
             dialog.dismiss()
         }
 
         dialog.show()
     }
 
-    private fun createTimetableEntry(entry: TimetableEntry) {
+    private fun saveTimetableEntries(
+        existingEntry: TimetableEntry?,
+        selectedDays: List<Int>,
+        courseName: String,
+        startTime: String,
+        endTime: String,
+        classroom: String
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                RetrofitClient.instance.createTimetableEntry(currentUserId, entry)
+                if (existingEntry == null) {
+                    selectedDays.forEach { day ->
+                        RetrofitClient.instance.createTimetableEntry(
+                            currentUserId,
+                            buildTimetableEntry(
+                                id = 0,
+                                courseName = courseName,
+                                dayOfWeek = day,
+                                startTime = startTime,
+                                endTime = endTime,
+                                classroom = classroom
+                            )
+                        )
+                    }
+                } else {
+                    val primaryDay = selectedDays.first()
+                    RetrofitClient.instance.updateTimetableEntry(
+                        existingEntry.id,
+                        currentUserId,
+                        buildTimetableEntry(
+                            id = existingEntry.id,
+                            courseName = courseName,
+                            dayOfWeek = primaryDay,
+                            startTime = startTime,
+                            endTime = endTime,
+                            classroom = classroom
+                        )
+                    )
+
+                    selectedDays.drop(1).forEach { day ->
+                        RetrofitClient.instance.createTimetableEntry(
+                            currentUserId,
+                            buildTimetableEntry(
+                                id = 0,
+                                courseName = courseName,
+                                dayOfWeek = day,
+                                startTime = startTime,
+                                endTime = endTime,
+                                classroom = classroom
+                            )
+                        )
+                    }
+                }
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Class added", Toast.LENGTH_SHORT).show()
+                    val message = when {
+                        existingEntry == null && selectedDays.size == 1 -> "Class added"
+                        existingEntry == null -> "Class added to ${selectedDays.size} days"
+                        selectedDays.size == 1 -> "Class updated"
+                        else -> "Class updated and added to ${selectedDays.size - 1} more days"
+                    }
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                     fetchTimetable()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         context,
-                        "Failed to add class: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
-
-    private fun updateTimetableEntry(entry: TimetableEntry) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                RetrofitClient.instance.updateTimetableEntry(entry.id, currentUserId, entry)
-
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Class updated", Toast.LENGTH_SHORT).show()
-                    fetchTimetable()
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        "Failed to update class: ${e.message}",
+                        "Failed to save class: ${e.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -371,58 +422,99 @@ class WeeklyTimetableFragment : Fragment() {
         }
     }
 
-    private fun showTimePicker(initialValue: String?, onTimeSelected: (String) -> Unit) {
-        val calendar = Calendar.getInstance()
-        if (!initialValue.isNullOrBlank()) {
-            val parts = initialValue.split(":")
-            if (parts.size >= 2) {
-                calendar.set(
-                    Calendar.HOUR_OF_DAY,
-                    parts[0].toIntOrNull() ?: calendar.get(Calendar.HOUR_OF_DAY)
-                )
-                calendar.set(
-                    Calendar.MINUTE,
-                    parts[1].toIntOrNull() ?: calendar.get(Calendar.MINUTE)
-                )
-            }
+    private fun collectSelectedDays(
+        chipGroup: ChipGroup,
+        dayChipIds: List<Pair<Int, Int>>
+    ): List<Int> {
+        return dayChipIds
+            .filter { (chipId, _) -> chipGroup.findViewById<Chip>(chipId).isChecked }
+            .map { it.second }
+    }
+
+    private fun setSelectedDays(
+        chipGroup: ChipGroup,
+        dayChipIds: List<Pair<Int, Int>>,
+        selectedDays: List<Int>
+    ) {
+        dayChipIds.forEach { (chipId, dayValue) ->
+            chipGroup.findViewById<Chip>(chipId).isChecked = selectedDays.contains(dayValue)
+        }
+    }
+
+    private fun buildTimetableEntry(
+        id: Int,
+        courseName: String,
+        dayOfWeek: Int,
+        startTime: String,
+        endTime: String,
+        classroom: String
+    ): TimetableEntry {
+        return TimetableEntry(
+            id = id,
+            courseName = courseName,
+            dayOfWeek = dayOfWeek,
+            startTime = TimeOptionUtils.displayToApiTime(startTime),
+            endTime = TimeOptionUtils.displayToApiTime(endTime),
+            classroom = classroom
+        )
+    }
+
+    private fun openClassNotes(entry: TimetableEntry) {
+        findNavController().navigate(R.id.notesFragment, NotesNavigation.classArgs(entry))
+    }
+
+    private fun buildNextClassSummary(entries: List<TimetableEntry>): String {
+        if (entries.isEmpty()) {
+            return "No classes scheduled yet. Add one to map out the week."
         }
 
-        val timePicker = android.app.TimePickerDialog(
-            requireContext(),
-            { _, hour, minute ->
-                onTimeSelected(String.format(Locale.US, "%02d:%02d", hour, minute))
-            },
-            calendar.get(Calendar.HOUR_OF_DAY),
-            calendar.get(Calendar.MINUTE),
-            true
-        )
-        timePicker.show()
+        val now = Calendar.getInstance()
+        val currentDay = convertCalendarDayToApp(now.get(Calendar.DAY_OF_WEEK))
+        val currentMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+
+        val nextEntry = entries
+            .sortedWith(compareBy<TimetableEntry> { distanceFromToday(currentDay, it.dayOfWeek) }.thenBy { timeToMinutes(it.startTime) })
+            .firstOrNull { entry ->
+                val dayDistance = distanceFromToday(currentDay, entry.dayOfWeek)
+                dayDistance > 0 || timeToMinutes(entry.startTime) >= currentMinutes
+            }
+            ?: entries.minWithOrNull(compareBy<TimetableEntry> { it.dayOfWeek }.thenBy { timeToMinutes(it.startTime) })
+
+        return if (nextEntry == null) {
+            "No classes scheduled yet. Add one to map out the week."
+        } else {
+            "Next class: ${nextEntry.courseName} on ${labelForDay(nextEntry.dayOfWeek)} at ${
+                TimeOptionUtils.apiToDisplayTime(nextEntry.startTime)
+            } in ${nextEntry.classroom}."
+        }
     }
 
-    private fun isEndTimeLater(startTime: String, endTime: String): Boolean {
-        return toMinutes(endTime) > toMinutes(startTime)
+    private fun distanceFromToday(currentDay: Int, targetDay: Int): Int {
+        val distance = targetDay - currentDay
+        return if (distance >= 0) distance else distance + 7
     }
 
-    private fun toMinutes(rawTime: String): Int {
-        val parts = rawTime.split(":")
+    private fun convertCalendarDayToApp(calendarDay: Int): Int {
+        return when (calendarDay) {
+            Calendar.MONDAY -> 1
+            Calendar.TUESDAY -> 2
+            Calendar.WEDNESDAY -> 3
+            Calendar.THURSDAY -> 4
+            Calendar.FRIDAY -> 5
+            Calendar.SATURDAY -> 6
+            Calendar.SUNDAY -> 7
+            else -> 1
+        }
+    }
+
+    private fun timeToMinutes(apiTime: String): Int {
+        val parts = apiTime.split(":")
         val hour = parts.getOrNull(0)?.toIntOrNull() ?: 0
         val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
-        return (hour * 60) + minute
+        return hour * 60 + minute
     }
 
-    private fun String.toApiTime(): String {
-        val parts = split(":")
-        if (parts.size < 2) {
-            return this
-        }
-        return String.format(Locale.US, "%02d:%02d:00", parts[0].toInt(), parts[1].toInt())
-    }
-
-    private fun String.toDisplayTime(): String {
-        val parts = split(":")
-        if (parts.size < 2) {
-            return this
-        }
-        return String.format(Locale.US, "%02d:%02d", parts[0].toInt(), parts[1].toInt())
+    private fun labelForDay(dayValue: Int): String {
+        return dayOptions.firstOrNull { it.second == dayValue }?.first ?: "Day"
     }
 }

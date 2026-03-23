@@ -1,8 +1,6 @@
 package com.example.meetmerit
 
-import android.graphics.Color
 import android.graphics.Paint
-import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -18,7 +17,8 @@ import java.util.Locale
 
 class TasksAdapter(
     private var tasks: List<Task>,
-    private val onTaskClick: (Task) -> Unit
+    private val onTaskClick: (Task) -> Unit,
+    private val onNoteClick: (Task) -> Unit,
 ) : RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
 
     inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -28,6 +28,7 @@ class TasksAdapter(
         val tvDueDate: TextView = itemView.findViewById(R.id.tv_due_date)
         val ivCalendar: ImageView = itemView.findViewById(R.id.iv_calendar)
         val tvXpBadge: TextView = itemView.findViewById(R.id.tvXpBadge)
+        val btnTaskNote: ImageView = itemView.findViewById(R.id.btnTaskNote)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -37,6 +38,7 @@ class TasksAdapter(
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = tasks[position]
+        val ctx = holder.itemView.context
 
         Log.e("DEBUG_DATE", "Title: ${task.title}, Raw Date: ${task.dueDate}")
 
@@ -51,27 +53,29 @@ class TasksAdapter(
             holder.layoutDateRow.visibility = View.VISIBLE
 
             val dueCal = Calendar.getInstance().apply { time = parsedDate }
+            val now = Calendar.getInstance()
             val today = Calendar.getInstance().apply { normalizeToDayStart() }
             val tomorrow = (today.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 1) }
-
-            val timeString = SimpleDateFormat("HH:mm", Locale.US).format(parsedDate)
+            val timeString = SimpleDateFormat("h:mm a", Locale.US).format(parsedDate)
 
             val dateText = when {
-                isSameDay(dueCal, today) -> "Today $timeString"
-                isSameDay(dueCal, tomorrow) -> "Tomorrow $timeString"
-                else -> SimpleDateFormat("MMM d HH:mm", Locale.US).format(parsedDate)
+                isSameDay(dueCal, today) -> "Today, $timeString"
+                isSameDay(dueCal, tomorrow) -> "Tomorrow, $timeString"
+                else -> SimpleDateFormat("MMM d, h:mm a", Locale.US).format(parsedDate)
             }
 
-            val isOverdue = !task.is_completed && dueCal.before(today)
+            val isOverdue = !task.is_completed && dueCal.before(now)
 
             if (isOverdue) {
                 holder.tvDueDate.text = "$dateText (Overdue)"
-                holder.tvDueDate.setTextColor(Color.parseColor("#DC2626"))
-                holder.ivCalendar.setColorFilter(Color.parseColor("#DC2626"))
+                val errorColor = ContextCompat.getColor(ctx, R.color.md_error)
+                holder.tvDueDate.setTextColor(errorColor)
+                holder.ivCalendar.setColorFilter(errorColor)
             } else {
                 holder.tvDueDate.text = dateText
-                holder.tvDueDate.setTextColor(Color.parseColor("#6B7280"))
-                holder.ivCalendar.setColorFilter(Color.parseColor("#6B7280"))
+                val mutedColor = ContextCompat.getColor(ctx, R.color.md_on_surface_variant)
+                holder.tvDueDate.setTextColor(mutedColor)
+                holder.ivCalendar.setColorFilter(mutedColor)
             }
         } else {
             holder.layoutDateRow.visibility = View.GONE
@@ -80,18 +84,23 @@ class TasksAdapter(
         // --- Completed vs Active state ---
         if (task.is_completed) {
             holder.tvTitle.paintFlags = holder.tvTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            holder.tvTitle.setTextColor(Color.parseColor("#9CA3AF"))
+            holder.tvTitle.setTextColor(ContextCompat.getColor(ctx, R.color.md_on_surface_variant))
             holder.layoutDateRow.alpha = 0.5f
             holder.tvXpBadge.alpha = 0.5f
+            holder.btnTaskNote.alpha = 0.5f
         } else {
             holder.tvTitle.paintFlags = holder.tvTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            holder.tvTitle.setTextColor(Color.parseColor("#1F2937"))
+            holder.tvTitle.setTextColor(ContextCompat.getColor(ctx, R.color.md_on_surface))
             holder.layoutDateRow.alpha = 1f
             holder.tvXpBadge.alpha = 1f
+            holder.btnTaskNote.alpha = 1f
         }
 
         holder.cbCompleted.setOnClickListener {
             onTaskClick(task)
+        }
+        holder.btnTaskNote.setOnClickListener {
+            onNoteClick(task)
         }
     }
 
@@ -100,6 +109,10 @@ class TasksAdapter(
     fun updateData(newTasks: List<Task>) {
         tasks = newTasks
         notifyDataSetChanged()
+    }
+
+    fun getTaskAt(position: Int): Task? {
+        return tasks.getOrNull(position)
     }
 
     private fun parseDueDate(raw: String): Date? {
