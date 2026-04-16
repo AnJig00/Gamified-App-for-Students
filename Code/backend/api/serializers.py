@@ -1,13 +1,22 @@
 from rest_framework import serializers
 
+from .avatar_utils import get_avatar_url
 from .league_services import ensure_league_membership, ensure_weekly_entry, get_current_league_week
-from .models import Note, Student, Task, TimetableEntry
+from .models import ConnectionRequest, Encounter, Friendship, Note, Student, Task, TimetableEntry
 
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['id', 'username', 'email', 'password']
+        fields = [
+            'id',
+            'username',
+            'email',
+            'password',
+            'department',
+            'year_of_study',
+            'social_discoverable',
+        ]
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -91,3 +100,127 @@ class NoteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Course notes require a course name.')
 
         return attrs
+
+
+class SocialPresenceStartResponseSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    expires_at = serializers.DateTimeField()
+    ttl_seconds = serializers.IntegerField()
+    service_uuid = serializers.CharField()
+
+
+class SocialResolveRequestSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=64)
+
+
+class SocialResolveResponseSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField()
+    username = serializers.CharField()
+    avatar_url = serializers.CharField(allow_null=True, required=False)
+    department = serializers.CharField(allow_blank=True)
+    year_of_study = serializers.IntegerField(allow_null=True)
+
+
+class SocialConnectRequestSerializer(serializers.Serializer):
+    target_student_id = serializers.IntegerField()
+    rssi = serializers.IntegerField(required=False, allow_null=True)
+
+
+class SocialRespondRequestSerializer(serializers.Serializer):
+    request_id = serializers.IntegerField()
+    action = serializers.ChoiceField(choices=['accept', 'reject'])
+
+
+class SocialFriendshipRequestSerializer(serializers.Serializer):
+    request_id = serializers.IntegerField()
+
+
+class ConnectionRequestSerializer(serializers.ModelSerializer):
+    from_username = serializers.CharField(source='from_student.username', read_only=True)
+    from_avatar_url = serializers.SerializerMethodField()
+    from_department = serializers.CharField(source='from_student.department', read_only=True)
+    from_year_of_study = serializers.IntegerField(
+        source='from_student.year_of_study',
+        read_only=True,
+        allow_null=True,
+    )
+    to_username = serializers.CharField(source='to_student.username', read_only=True)
+    to_avatar_url = serializers.SerializerMethodField()
+    to_department = serializers.CharField(source='to_student.department', read_only=True)
+    to_year_of_study = serializers.IntegerField(
+        source='to_student.year_of_study',
+        read_only=True,
+        allow_null=True,
+    )
+
+    class Meta:
+        model = ConnectionRequest
+        fields = [
+            'id',
+            'from_student',
+            'from_username',
+            'from_avatar_url',
+            'from_department',
+            'from_year_of_study',
+            'to_student',
+            'to_username',
+            'to_avatar_url',
+            'to_department',
+            'to_year_of_study',
+            'status',
+            'created_at',
+            'responded_at',
+        ]
+
+    def get_from_avatar_url(self, obj):
+        return get_avatar_url(obj.from_student, self.context.get('request'))
+
+    def get_to_avatar_url(self, obj):
+        return get_avatar_url(obj.to_student, self.context.get('request'))
+
+
+class EncounterSerializer(serializers.ModelSerializer):
+    initiator_username = serializers.CharField(source='initiator.username', read_only=True)
+    target_username = serializers.CharField(source='target.username', read_only=True)
+
+    class Meta:
+        model = Encounter
+        fields = [
+            'id',
+            'initiator',
+            'initiator_username',
+            'target',
+            'target_username',
+            'connection_request',
+            'rssi',
+            'confirmed',
+            'confirmed_at',
+            'xp_awarded',
+            'created_at',
+        ]
+
+
+class FriendshipSerializer(serializers.ModelSerializer):
+    student_a_username = serializers.CharField(source='student_a.username', read_only=True)
+    student_b_username = serializers.CharField(source='student_b.username', read_only=True)
+
+    class Meta:
+        model = Friendship
+        fields = [
+            'id',
+            'student_a',
+            'student_a_username',
+            'student_b',
+            'student_b_username',
+            'created_at',
+        ]
+
+
+class SocialFriendSummarySerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    friend_id = serializers.IntegerField()
+    username = serializers.CharField()
+    avatar_url = serializers.CharField(allow_null=True, required=False)
+    department = serializers.CharField(allow_blank=True)
+    year_of_study = serializers.IntegerField(allow_null=True)
+    created_at = serializers.DateTimeField()

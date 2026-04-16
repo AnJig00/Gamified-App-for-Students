@@ -4,6 +4,7 @@ from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
 
+from .avatar_utils import get_avatar_url
 from .models import League, LeagueMembership, LeagueWeek, Student, WeeklyLeagueEntry
 
 XP_PER_LEVEL = 100
@@ -240,7 +241,7 @@ def get_global_rank_for_student(student):
     return higher_xp_count + tied_ahead_count + 1
 
 
-def get_profile_snapshot(student, target_date=None):
+def get_profile_snapshot(student, target_date=None, request=None):
     status = get_league_status_for_student(student, target_date)
     update_student_level(student)
     progress = get_level_progress(student.current_xp)
@@ -248,6 +249,10 @@ def get_profile_snapshot(student, target_date=None):
     return {
         'username': student.username,
         'email': student.email,
+        'avatar_url': get_avatar_url(student, request),
+        'department': student.department,
+        'year_of_study': student.year_of_study,
+        'social_discoverable': student.social_discoverable,
         'current_xp': student.current_xp,
         'level': student.level,
         'credits': student.credits,

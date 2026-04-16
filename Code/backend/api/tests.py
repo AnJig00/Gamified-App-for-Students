@@ -1,11 +1,16 @@
+import os
+import shutil
 from datetime import time
+from pathlib import Path
 
 from django.urls import reverse
+from django.test import override_settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .league_services import award_student_xp, get_current_league_week, settle_league_week
-from .models import LeagueMembership, Note, Student, Task, TimetableEntry
+from .models import ConnectionRequest, Encounter, Friendship, LeagueMembership, Note, SocialToken, Student, Task, TimetableEntry
 
 
 class TaskApiTests(APITestCase):
@@ -258,3 +263,247 @@ class LeagueApiTests(APITestCase):
         }
         self.assertEqual(len(promoted_usernames), 5)
         self.assertNotIn('league_user_6', promoted_usernames)
+
+
+class SocialApiTests(APITestCase):
+    def setUp(self):
+        self.alice = Student.objects.create_user(
+            username='social_alice',
+            email='social_alice@example.com',
+            password='password123',
+            department='Computer Science',
+            year_of_study=2,
+        )
+        self.bob = Student.objects.create_user(
+            username='social_bob',
+            email='social_bob@example.com',
+            password='password123',
+            department='Design',
+            year_of_study=3,
+        )
+
+    def test_start_presence_and_resolve_token(self):
+        start_response = self.client.post(
+            f"{reverse('social-presence-start')}?user_id={self.alice.id}",
+            format='json',
+        )
+
+        self.assertEqual(start_response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('token', start_response.data)
+        self.assertEqual(SocialToken.objects.filter(student=self.alice, is_active=True).count(), 1)
+
+        resolve_response = self.client.post(
+            reverse('social-resolve'),
+            {'token': start_response.data['token']},
+            format='json',
+        )
+
+        self.assertEqual(resolve_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(resolve_response.data['student_id'], self.alice.id)
+        self.assertEqual(resolve_response.data['username'], 'social_alice')
+        self.assertEqual(resolve_response.data['department'], 'Computer Science')
+        self.assertEqual(resolve_response.data['year_of_study'], 2)
+
+    def test_stop_presence_deactivates_active_tokens(self):
+        self.client.post(
+            f"{reverse('social-presence-start')}?user_id={self.alice.id}",
+            format='json',
+        )
+
+        stop_response = self.client.post(
+            f"{reverse('social-presence-stop')}?user_id={self.alice.id}",
+            format='json',
+        )
+
+        self.assertEqual(stop_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(stop_response.data['deactivated_tokens'], 1)
+        self.assertFalse(SocialToken.objects.filter(student=self.alice, is_active=True).exists())
+
+    def test_accept_connection_request_confirms_encounter_and_awards_xp(self):
+        connect_response = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {
+                'target_student_id': self.bob.id,
+                'rssi': -52,
+            },
+            format='json',
+        )
+
+        self.assertEqual(connect_response.status_code, status.HTTP_201_CREATED)
+        request_id = connect_response.data['request']['id']
+
+        confirm_response = self.client.post(
+            f"{reverse('social-confirm')}?user_id={self.bob.id}",
+            {
+                'request_id': request_id,
+                'action': 'accept',
+            },
+            format='json',
+        )
+
+        self.assertEqual(confirm_response.status_code, status.HTTP_200_OK)
+        self.assertTrue(confirm_response.data['xp_awarded'])
+
+        connection_request = ConnectionRequest.objects.get(pk=request_id)
+        encounter = Encounter.objects.get(connection_request=connection_request)
+        self.alice.refresh_from_db()
+        self.bob.refresh_from_db()
+
+        self.assertEqual(connection_request.status, ConnectionRequest.STATUS_ACCEPTED)
+        self.assertTrue(encounter.confirmed)
+        self.assertTrue(encounter.xp_awarded)
+        self.assertEqual(self.alice.current_xp, 5)
+        self.assertEqual(self.bob.current_xp, 5)
+
+    def test_can_add_friend_after_request_is_accepted(self):
+        connect_response = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {'target_student_id': self.bob.id},
+            format='json',
+        )
+        request_id = connect_response.data['request']['id']
+
+        self.client.post(
+            f"{reverse('social-confirm')}?user_id={self.bob.id}",
+            {
+                'request_id': request_id,
+                'action': 'accept',
+            },
+            format='json',
+        )
+
+        friend_response = self.client.post(
+            f"{reverse('social-add-friend')}?user_id={self.alice.id}",
+            {'request_id': request_id},
+            format='json',
+        )
+
+        self.assertEqual(friend_response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Friendship.objects.exists())
+
+    def test_reject_connection_request_marks_request_rejected(self):
+        connect_response = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {'target_student_id': self.bob.id},
+            format='json',
+        )
+        request_id = connect_response.data['request']['id']
+
+        reject_response = self.client.post(
+            f"{reverse('social-confirm')}?user_id={self.bob.id}",
+            {
+                'request_id': request_id,
+                'action': 'reject',
+            },
+            format='json',
+        )
+
+        self.assertEqual(reject_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(reject_response.data['request']['status'], ConnectionRequest.STATUS_REJECTED)
+        self.assertFalse(Encounter.objects.filter(connection_request_id=request_id, confirmed=True).exists())
+
+    def test_friend_list_returns_counterpart_profile_details(self):
+        connect_response = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {'target_student_id': self.bob.id},
+            format='json',
+        )
+        request_id = connect_response.data['request']['id']
+
+        self.client.post(
+            f"{reverse('social-confirm')}?user_id={self.bob.id}",
+            {
+                'request_id': request_id,
+                'action': 'accept',
+            },
+            format='json',
+        )
+        self.client.post(
+            f"{reverse('social-add-friend')}?user_id={self.alice.id}",
+            {'request_id': request_id},
+            format='json',
+        )
+
+        friend_list_response = self.client.get(
+            f"{reverse('social-add-friend')}?user_id={self.alice.id}",
+            format='json',
+        )
+
+        self.assertEqual(friend_list_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(friend_list_response.data['friends']), 1)
+        self.assertEqual(friend_list_response.data['friends'][0]['friend_id'], self.bob.id)
+        self.assertEqual(friend_list_response.data['friends'][0]['username'], 'social_bob')
+        self.assertEqual(friend_list_response.data['friends'][0]['department'], 'Design')
+        self.assertEqual(friend_list_response.data['friends'][0]['year_of_study'], 3)
+
+    def test_duplicate_pending_request_returns_existing_request(self):
+        first_response = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {'target_student_id': self.bob.id},
+            format='json',
+        )
+        second_response = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {'target_student_id': self.bob.id},
+            format='json',
+        )
+
+        self.assertEqual(first_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(second_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(ConnectionRequest.objects.count(), 1)
+
+
+class AvatarApiTests(APITestCase):
+    def setUp(self):
+        self.temp_media_root = Path(__file__).resolve().parents[1] / 'test-media-runtime'
+        os.makedirs(self.temp_media_root / 'avatars', exist_ok=True)
+        self.media_override = override_settings(MEDIA_ROOT=self.temp_media_root)
+        self.media_override.enable()
+        self.addCleanup(self.media_override.disable)
+        self.addCleanup(lambda: shutil.rmtree(self.temp_media_root, ignore_errors=True))
+
+        self.student = Student.objects.create_user(
+            username='avatar_alice',
+            email='avatar_alice@example.com',
+            password='password123',
+        )
+
+    def test_profile_returns_avatar_url_after_upload(self):
+        avatar_file = SimpleUploadedFile(
+            'avatar.png',
+            b'\x89PNG\r\n\x1a\navatar-bytes',
+            content_type='image/png',
+        )
+
+        upload_response = self.client.post(
+            f"{reverse('profile-avatar-upload')}?user_id={self.student.id}",
+            {'avatar': avatar_file},
+            format='multipart',
+        )
+
+        self.assertEqual(upload_response.status_code, status.HTTP_200_OK)
+        self.assertIn('/media/avatars/', upload_response.data['avatar_url'])
+
+        profile_response = self.client.get(
+            f"{reverse('profile')}?user_id={self.student.id}",
+            format='json',
+        )
+
+        self.assertEqual(profile_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(profile_response.data['avatar_url'], upload_response.data['avatar_url'])
+
+    def test_avatar_upload_rejects_non_image_files(self):
+        avatar_file = SimpleUploadedFile(
+            'avatar.txt',
+            b'not-an-image',
+            content_type='text/plain',
+        )
+
+        upload_response = self.client.post(
+            f"{reverse('profile-avatar-upload')}?user_id={self.student.id}",
+            {'avatar': avatar_file},
+            format='multipart',
+        )
+
+        self.assertEqual(upload_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('avatar', upload_response.data)

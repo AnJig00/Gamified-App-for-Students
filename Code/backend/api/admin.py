@@ -1,6 +1,18 @@
 from django.contrib import admin
 
-from .models import League, LeagueMembership, LeagueWeek, Note, Task, TimetableEntry, WeeklyLeagueEntry
+from .models import (
+    ConnectionRequest,
+    Encounter,
+    Friendship,
+    League,
+    LeagueMembership,
+    LeagueWeek,
+    Note,
+    SocialToken,
+    Task,
+    TimetableEntry,
+    WeeklyLeagueEntry,
+)
 
 
 @admin.register(Task)
@@ -49,3 +61,30 @@ class NoteAdmin(admin.ModelAdmin):
     list_display = ('title', 'user', 'note_type', 'course_name', 'linked_task', 'linked_timetable_entry', 'updated_at')
     list_filter = ('note_type', 'user')
     search_fields = ('title', 'content_markdown', 'course_name', 'user__username')
+
+
+@admin.register(SocialToken)
+class SocialTokenAdmin(admin.ModelAdmin):
+    list_display = ('student', 'is_active', 'expires_at', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('student__username', 'token_hash')
+
+
+@admin.register(ConnectionRequest)
+class ConnectionRequestAdmin(admin.ModelAdmin):
+    list_display = ('from_student', 'to_student', 'status', 'created_at', 'responded_at')
+    list_filter = ('status',)
+    search_fields = ('from_student__username', 'to_student__username')
+
+
+@admin.register(Encounter)
+class EncounterAdmin(admin.ModelAdmin):
+    list_display = ('initiator', 'target', 'confirmed', 'xp_awarded', 'rssi', 'created_at')
+    list_filter = ('confirmed', 'xp_awarded')
+    search_fields = ('initiator__username', 'target__username')
+
+
+@admin.register(Friendship)
+class FriendshipAdmin(admin.ModelAdmin):
+    list_display = ('student_a', 'student_b', 'created_at')
+    search_fields = ('student_a__username', 'student_b__username')

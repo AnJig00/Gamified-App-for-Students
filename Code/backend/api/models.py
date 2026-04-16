@@ -6,6 +6,10 @@ class Student(AbstractUser):
     current_xp = models.IntegerField(default=0)
     level = models.IntegerField(default=1)
     credits = models.IntegerField(default=0)
+    department = models.CharField(max_length=120, blank=True)
+    year_of_study = models.PositiveSmallIntegerField(null=True, blank=True)
+    social_discoverable = models.BooleanField(default=True)
+    avatar = models.FileField(upload_to='avatars/', blank=True, null=True)
 
     groups = models.ManyToManyField(
         'auth.Group',
@@ -233,3 +237,124 @@ class WeeklyLeagueEntry(models.Model):
 
     def __str__(self):
         return f'{self.student.username} - {self.league.name} - {self.week.start_date}'
+
+
+class SocialToken(models.Model):
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='social_tokens',
+    )
+    token_hash = models.CharField(max_length=64, unique=True)
+    expires_at = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['student', 'is_active']),
+            models.Index(fields=['expires_at']),
+        ]
+
+    def __str__(self):
+        return f'Social token for {self.student.username}'
+
+
+class ConnectionRequest(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_ACCEPTED = 'accepted'
+    STATUS_REJECTED = 'rejected'
+    STATUS_CANCELED = 'canceled'
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_ACCEPTED, 'Accepted'),
+        (STATUS_REJECTED, 'Rejected'),
+        (STATUS_CANCELED, 'Canceled'),
+    ]
+
+    from_student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='sent_connection_requests',
+    )
+    to_student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='received_connection_requests',
+    )
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['from_student', 'to_student', 'status']),
+            models.Index(fields=['to_student', 'status']),
+        ]
+
+    def __str__(self):
+        return f'{self.from_student.username} -> {self.to_student.username} ({self.status})'
+
+
+class Encounter(models.Model):
+    initiator = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='encounters_started',
+    )
+    target = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='encounters_received',
+    )
+    connection_request = models.ForeignKey(
+        ConnectionRequest,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='encounters',
+    )
+    rssi = models.IntegerField(null=True, blank=True)
+    confirmed = models.BooleanField(default=False)
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    xp_awarded = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['initiator', 'target', 'created_at']),
+            models.Index(fields=['confirmed', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.initiator.username} met {self.target.username}'
+
+
+class Friendship(models.Model):
+    student_a = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='friendships_started',
+    )
+    student_b = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='friendships_received',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student_a', 'student_b'],
+                name='unique_friendship_pair',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.student_a.username} & {self.student_b.username}'
