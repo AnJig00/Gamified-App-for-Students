@@ -8,7 +8,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .avatar_utils import get_avatar_url, validate_avatar_upload
+from .avatar_utils import get_avatar_url, upload_avatar_to_cloudinary, validate_avatar_upload
 from .league_services import (
     award_student_xp,
     ensure_league_membership,
@@ -317,12 +317,8 @@ class ProfileAvatarUploadView(APIView):
         avatar_file = request.FILES.get('avatar')
         validate_avatar_upload(avatar_file)
 
-        old_avatar_name = student.avatar.name if student.avatar else None
-        student.avatar.save(avatar_file.name, avatar_file, save=False)
+        student.avatar = upload_avatar_to_cloudinary(student, avatar_file)
         student.save(update_fields=['avatar'])
-
-        if old_avatar_name and old_avatar_name != student.avatar.name:
-            student.avatar.storage.delete(old_avatar_name)
 
         return Response(
             {

@@ -1,10 +1,7 @@
-import os
-import shutil
 from datetime import time
-from pathlib import Path
+from unittest.mock import patch
 
 from django.urls import reverse
-from django.test import override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -455,20 +452,16 @@ class SocialApiTests(APITestCase):
 
 class AvatarApiTests(APITestCase):
     def setUp(self):
-        self.temp_media_root = Path(__file__).resolve().parents[1] / 'test-media-runtime'
-        os.makedirs(self.temp_media_root / 'avatars', exist_ok=True)
-        self.media_override = override_settings(MEDIA_ROOT=self.temp_media_root)
-        self.media_override.enable()
-        self.addCleanup(self.media_override.disable)
-        self.addCleanup(lambda: shutil.rmtree(self.temp_media_root, ignore_errors=True))
-
         self.student = Student.objects.create_user(
             username='avatar_alice',
             email='avatar_alice@example.com',
             password='password123',
         )
 
-    def test_profile_returns_avatar_url_after_upload(self):
+    @patch('api.views.upload_avatar_to_cloudinary')
+    def test_profile_returns_avatar_url_after_upload(self, mocked_upload):
+        mocked_upload.return_value = 'https://res.cloudinary.com/demo/image/upload/v1/meet-merit/avatars/student-1.png'
+
         avatar_file = SimpleUploadedFile(
             'avatar.png',
             b'\x89PNG\r\n\x1a\navatar-bytes',
@@ -482,7 +475,7 @@ class AvatarApiTests(APITestCase):
         )
 
         self.assertEqual(upload_response.status_code, status.HTTP_200_OK)
-        self.assertIn('/media/avatars/', upload_response.data['avatar_url'])
+        self.assertEqual(upload_response.data['avatar_url'], mocked_upload.return_value)
 
         profile_response = self.client.get(
             f"{reverse('profile')}?user_id={self.student.id}",

@@ -9,7 +9,7 @@ class Student(AbstractUser):
     department = models.CharField(max_length=120, blank=True)
     year_of_study = models.PositiveSmallIntegerField(null=True, blank=True)
     social_discoverable = models.BooleanField(default=True)
-    avatar = models.FileField(upload_to='avatars/', blank=True, null=True)
+    avatar = models.URLField(blank=True, null=True)
 
     groups = models.ManyToManyField(
         'auth.Group',
