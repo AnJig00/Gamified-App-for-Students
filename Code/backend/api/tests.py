@@ -3,11 +3,12 @@ from unittest.mock import patch
 
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .league_services import award_student_xp, get_current_league_week, settle_league_week
-from .models import ConnectionRequest, Encounter, Friendship, LeagueMembership, Note, SocialToken, Student, Task, TimetableEntry
+from .models import ConnectionRequest, DailyFocusReward, Encounter, Friendship, LeagueMembership, Note, SocialToken, Student, Task, TimetableEntry
 
 
 class TaskApiTests(APITestCase):
@@ -52,6 +53,105 @@ class TaskApiTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertTrue(Task.objects.filter(id=task.id).exists())
+
+    def test_first_task_completion_awards_xp_and_tracks_completion(self):
+        task = Task.objects.create(
+            user=self.student,
+            title='Finish reading',
+            is_completed=False,
+        )
+
+        response = self.client.patch(
+            f"{reverse('task-detail', args=[task.id])}?user_id={self.student.id}",
+            {"is_completed": True},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.student.refresh_from_db()
+        task.refresh_from_db()
+
+        self.assertEqual(self.student.current_xp, 10)
+        self.assertEqual(self.student.credits, 10)
+        self.assertTrue(response.data['xp_awarded'])
+        self.assertFalse(response.data['daily_limit_reached'])
+        self.assertEqual(response.data['daily_task_xp_limit'], 8)
+        self.assertEqual(response.data['rewarded_tasks_today'], 1)
+        self.assertIsNotNone(task.completed_at)
+        self.assertIsNotNone(task.xp_awarded_at)
+
+    def test_daily_task_xp_cap_blocks_ninth_reward(self):
+        rewarded_time = timezone.now()
+        for index in range(8):
+            Task.objects.create(
+                user=self.student,
+                title=f'Rewarded task {index}',
+                is_completed=True,
+                completed_at=rewarded_time,
+                xp_awarded_at=rewarded_time,
+            )
+
+        self.student.credits = 80
+        self.student.save(update_fields=['credits'])
+        award_student_xp(self.student, 80)
+
+        capped_task = Task.objects.create(
+            user=self.student,
+            title='Ninth task',
+            is_completed=False,
+        )
+
+        response = self.client.patch(
+            f"{reverse('task-detail', args=[capped_task.id])}?user_id={self.student.id}",
+            {"is_completed": True},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.student.refresh_from_db()
+        capped_task.refresh_from_db()
+
+        self.assertEqual(self.student.current_xp, 80)
+        self.assertEqual(self.student.credits, 80)
+        self.assertFalse(response.data['xp_awarded'])
+        self.assertTrue(response.data['daily_limit_reached'])
+        self.assertEqual(response.data['rewarded_tasks_today'], 8)
+        self.assertIsNotNone(capped_task.completed_at)
+        self.assertIsNone(capped_task.xp_awarded_at)
+
+    def test_reopening_and_recompleting_same_task_does_not_award_xp_twice(self):
+        task = Task.objects.create(
+            user=self.student,
+            title='One-time reward task',
+            is_completed=False,
+        )
+
+        self.client.patch(
+            f"{reverse('task-detail', args=[task.id])}?user_id={self.student.id}",
+            {"is_completed": True},
+            format='json',
+        )
+        self.client.patch(
+            f"{reverse('task-detail', args=[task.id])}?user_id={self.student.id}",
+            {"is_completed": False},
+            format='json',
+        )
+        second_completion = self.client.patch(
+            f"{reverse('task-detail', args=[task.id])}?user_id={self.student.id}",
+            {"is_completed": True},
+            format='json',
+        )
+
+        self.assertEqual(second_completion.status_code, status.HTTP_200_OK)
+        self.student.refresh_from_db()
+        task.refresh_from_db()
+
+        self.assertEqual(self.student.current_xp, 10)
+        self.assertEqual(self.student.credits, 10)
+        self.assertFalse(second_completion.data['xp_awarded'])
+        self.assertIn('already been claimed', second_completion.data['message'])
+        self.assertIsNotNone(task.completed_at)
+        self.assertIsNotNone(task.xp_awarded_at)
 
 
 class TimetableApiTests(APITestCase):
@@ -262,6 +362,92 @@ class LeagueApiTests(APITestCase):
         self.assertNotIn('league_user_6', promoted_usernames)
 
 
+class FocusApiTests(APITestCase):
+    def setUp(self):
+        self.student = Student.objects.create_user(
+            username='focus_alice',
+            email='focus_alice@example.com',
+            password='password123',
+        )
+
+    def test_focus_session_awards_full_xp_when_under_daily_cap(self):
+        response = self.client.post(
+            reverse('focus-log'),
+            {
+                'user_id': self.student.id,
+                'minutes': 45,
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.student.refresh_from_db()
+        reward = DailyFocusReward.objects.get(student=self.student)
+
+        self.assertEqual(self.student.current_xp, 45)
+        self.assertEqual(response.data['awarded_xp'], 45)
+        self.assertFalse(response.data['daily_limit_reached'])
+        self.assertEqual(response.data['rewarded_minutes_today'], 45)
+        self.assertEqual(response.data['daily_focus_xp_limit'], 120)
+        self.assertEqual(reward.rewarded_minutes, 45)
+
+    def test_focus_session_only_awards_remaining_minutes_before_daily_cap(self):
+        DailyFocusReward.objects.create(
+            student=self.student,
+            reward_date=timezone.localdate(),
+            rewarded_minutes=100,
+        )
+        award_student_xp(self.student, 100)
+
+        response = self.client.post(
+            reverse('focus-log'),
+            {
+                'user_id': self.student.id,
+                'minutes': 45,
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.student.refresh_from_db()
+        reward = DailyFocusReward.objects.get(student=self.student, reward_date=timezone.localdate())
+
+        self.assertEqual(self.student.current_xp, 120)
+        self.assertEqual(response.data['awarded_xp'], 20)
+        self.assertTrue(response.data['daily_limit_reached'])
+        self.assertEqual(response.data['rewarded_minutes_today'], 120)
+        self.assertIn('Daily focus XP limit reached', response.data['message'])
+        self.assertEqual(reward.rewarded_minutes, 120)
+
+    def test_focus_session_awards_no_xp_after_daily_cap(self):
+        DailyFocusReward.objects.create(
+            student=self.student,
+            reward_date=timezone.localdate(),
+            rewarded_minutes=120,
+        )
+        award_student_xp(self.student, 120)
+
+        response = self.client.post(
+            reverse('focus-log'),
+            {
+                'user_id': self.student.id,
+                'minutes': 25,
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.student.refresh_from_db()
+        reward = DailyFocusReward.objects.get(student=self.student, reward_date=timezone.localdate())
+
+        self.assertEqual(self.student.current_xp, 120)
+        self.assertEqual(response.data['awarded_xp'], 0)
+        self.assertTrue(response.data['daily_limit_reached'])
+        self.assertEqual(response.data['rewarded_minutes_today'], 120)
+        self.assertIn('no additional XP', response.data['message'])
+        self.assertEqual(reward.rewarded_minutes, 120)
+
+
 class SocialApiTests(APITestCase):
     def setUp(self):
         self.alice = Student.objects.create_user(
@@ -351,6 +537,93 @@ class SocialApiTests(APITestCase):
         self.assertTrue(encounter.xp_awarded)
         self.assertEqual(self.alice.current_xp, 5)
         self.assertEqual(self.bob.current_xp, 5)
+
+    def test_same_pair_only_gets_one_social_reward_per_day(self):
+        first_connect = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {'target_student_id': self.bob.id},
+            format='json',
+        )
+        first_request_id = first_connect.data['request']['id']
+        self.client.post(
+            f"{reverse('social-confirm')}?user_id={self.bob.id}",
+            {
+                'request_id': first_request_id,
+                'action': 'accept',
+            },
+            format='json',
+        )
+
+        second_connect = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {'target_student_id': self.bob.id},
+            format='json',
+        )
+        second_request_id = second_connect.data['request']['id']
+        second_confirm = self.client.post(
+            f"{reverse('social-confirm')}?user_id={self.bob.id}",
+            {
+                'request_id': second_request_id,
+                'action': 'accept',
+            },
+            format='json',
+        )
+
+        self.assertEqual(second_confirm.status_code, status.HTTP_200_OK)
+        self.alice.refresh_from_db()
+        self.bob.refresh_from_db()
+
+        self.assertFalse(second_confirm.data['xp_awarded'])
+        self.assertFalse(second_confirm.data['recipient_xp_awarded'])
+        self.assertFalse(second_confirm.data['sender_xp_awarded'])
+        self.assertTrue(second_confirm.data['pair_reward_already_given'])
+        self.assertEqual(self.alice.current_xp, 5)
+        self.assertEqual(self.bob.current_xp, 5)
+
+    def test_social_daily_cap_blocks_only_student_who_has_hit_limit(self):
+        award_student_xp(self.bob, 25)
+        for index in range(5):
+            other_student = Student.objects.create_user(
+                username=f'social_cap_user_{index}',
+                email=f'social_cap_user_{index}@example.com',
+                password='password123',
+            )
+            Encounter.objects.create(
+                initiator=other_student,
+                target=self.bob,
+                confirmed=True,
+                xp_awarded=True,
+            )
+
+        connect_response = self.client.post(
+            f"{reverse('social-connect')}?user_id={self.alice.id}",
+            {'target_student_id': self.bob.id},
+            format='json',
+        )
+        request_id = connect_response.data['request']['id']
+
+        confirm_response = self.client.post(
+            f"{reverse('social-confirm')}?user_id={self.bob.id}",
+            {
+                'request_id': request_id,
+                'action': 'accept',
+            },
+            format='json',
+        )
+
+        self.assertEqual(confirm_response.status_code, status.HTTP_200_OK)
+        self.alice.refresh_from_db()
+        self.bob.refresh_from_db()
+
+        self.assertFalse(confirm_response.data['xp_awarded'])
+        self.assertFalse(confirm_response.data['recipient_xp_awarded'])
+        self.assertTrue(confirm_response.data['sender_xp_awarded'])
+        self.assertFalse(confirm_response.data['pair_reward_already_given'])
+        self.assertEqual(confirm_response.data['daily_social_xp_limit'], 5)
+        self.assertEqual(confirm_response.data['recipient_new_xp'], 25)
+        self.assertEqual(confirm_response.data['sender_new_xp'], 5)
+        self.assertEqual(self.alice.current_xp, 5)
+        self.assertEqual(self.bob.current_xp, 25)
 
     def test_can_add_friend_after_request_is_accepted(self):
         connect_response = self.client.post(

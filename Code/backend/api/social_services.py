@@ -2,6 +2,7 @@ import hashlib
 import secrets
 from datetime import timedelta
 
+from django.db import models
 from django.db import transaction
 from django.utils import timezone
 
@@ -10,6 +11,7 @@ from .models import ConnectionRequest, Encounter, Friendship, SocialToken, Stude
 
 SOCIAL_TOKEN_TTL_SECONDS = 120
 SOCIAL_XP_REWARD = 5
+SOCIAL_DAILY_XP_CAP = 5
 SOCIAL_SERVICE_UUID = '8d0c5a5e-4e7b-4c2f-8c0d-3d5d89d8f321'
 
 
@@ -80,6 +82,17 @@ def has_recent_social_reward(student_one, student_two):
     return False
 
 
+def social_rewards_awarded_today(student, target_date=None):
+    reward_date = target_date or timezone.localdate()
+    return Encounter.objects.filter(
+        confirmed=True,
+        xp_awarded=True,
+        created_at__date=reward_date,
+    ).filter(
+        models.Q(initiator=student) | models.Q(target=student)
+    ).count()
+
+
 @transaction.atomic
 def confirm_connection_request(connection_request):
     if connection_request.status != ConnectionRequest.STATUS_PENDING:
@@ -100,12 +113,30 @@ def confirm_connection_request(connection_request):
     encounter.confirmed = True
     encounter.confirmed_at = timezone.now()
 
-    xp_awarded = False
-    if not has_recent_social_reward(connection_request.from_student, connection_request.to_student):
-        award_student_xp(connection_request.from_student, SOCIAL_XP_REWARD)
-        award_student_xp(connection_request.to_student, SOCIAL_XP_REWARD)
-        encounter.xp_awarded = True
-        xp_awarded = True
+    pair_reward_already_given = has_recent_social_reward(
+        connection_request.from_student,
+        connection_request.to_student,
+    )
+    sender_xp_awarded = False
+    recipient_xp_awarded = False
+
+    if not pair_reward_already_given:
+        sender_rewards_today = social_rewards_awarded_today(connection_request.from_student)
+        recipient_rewards_today = social_rewards_awarded_today(connection_request.to_student)
+
+        if sender_rewards_today < SOCIAL_DAILY_XP_CAP:
+            award_student_xp(connection_request.from_student, SOCIAL_XP_REWARD)
+            sender_xp_awarded = True
+
+        if recipient_rewards_today < SOCIAL_DAILY_XP_CAP:
+            award_student_xp(connection_request.to_student, SOCIAL_XP_REWARD)
+            recipient_xp_awarded = True
+
+        encounter.xp_awarded = sender_xp_awarded or recipient_xp_awarded
 
     encounter.save(update_fields=['confirmed', 'confirmed_at', 'xp_awarded'])
-    return encounter, xp_awarded
+    return encounter, {
+        'sender_xp_awarded': sender_xp_awarded,
+        'recipient_xp_awarded': recipient_xp_awarded,
+        'pair_reward_already_given': pair_reward_already_given,
+    }

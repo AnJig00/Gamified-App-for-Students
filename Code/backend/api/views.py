@@ -18,7 +18,7 @@ from .league_services import (
     get_profile_snapshot,
     get_league_status_for_student,
 )
-from .models import ConnectionRequest, Friendship, Note, Student, Task, TimetableEntry
+from .models import ConnectionRequest, DailyFocusReward, Friendship, Note, Student, Task, TimetableEntry
 from .serializers import (
     ConnectionRequestSerializer,
     FriendshipSerializer,
@@ -35,6 +35,7 @@ from .serializers import (
     TimetableEntrySerializer,
 )
 from .social_services import (
+    SOCIAL_DAILY_XP_CAP,
     SOCIAL_SERVICE_UUID,
     SOCIAL_TOKEN_TTL_SECONDS,
     confirm_connection_request,
@@ -44,6 +45,43 @@ from .social_services import (
     issue_social_token,
     resolve_social_token,
 )
+
+TASK_XP_REWARD = 10
+TASK_DAILY_XP_CAP = 8
+FOCUS_DAILY_XP_CAP_MINUTES = 120
+
+
+def task_xp_rewards_awarded_today(student, target_date=None):
+    reward_date = target_date or timezone.localdate()
+    return Task.objects.filter(
+        user=student,
+        xp_awarded_at__date=reward_date,
+    ).count()
+
+
+def build_task_patch_response(task, owner, message, *, xp_awarded=False, daily_limit_reached=False):
+    weekly_entry = ensure_weekly_entry(owner, get_current_league_week())
+    return Response(
+        {
+            "data": TaskSerializer(task).data,
+            "message": message,
+            "new_xp": owner.current_xp,
+            "weekly_xp": weekly_entry.weekly_xp,
+            "xp_awarded": xp_awarded,
+            "daily_limit_reached": daily_limit_reached,
+            "rewarded_tasks_today": task_xp_rewards_awarded_today(owner),
+            "daily_task_xp_limit": TASK_DAILY_XP_CAP,
+        }
+    )
+
+
+def get_daily_focus_reward(student, target_date=None):
+    reward_date = target_date or timezone.localdate()
+    reward, _ = DailyFocusReward.objects.get_or_create(
+        student=student,
+        reward_date=reward_date,
+    )
+    return reward
 
 
 @api_view(['POST'])
@@ -119,23 +157,65 @@ def task_detail(request, pk):
         was_completed = task.is_completed
         serializer = TaskSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
+            owner = task.user
             updated_task = serializer.save()
+            now = timezone.now()
 
             if updated_task.is_completed and not was_completed:
-                owner = Student.objects.get(pk=user_id)
-                owner.credits += 10
-                owner.save(update_fields=['credits'])
-                weekly_entry = award_student_xp(owner, 10)
-                return Response(
-                    {
-                        "data": serializer.data,
-                        "message": "Task Completed! +10 XP",
-                        "new_xp": owner.current_xp,
-                        "weekly_xp": weekly_entry.weekly_xp,
-                    }
+                update_fields = []
+                if updated_task.completed_at is None:
+                    updated_task.completed_at = now
+                    update_fields.append('completed_at')
+
+                if updated_task.xp_awarded_at is None:
+                    rewarded_today = task_xp_rewards_awarded_today(owner)
+                    if rewarded_today < TASK_DAILY_XP_CAP:
+                        owner.credits += TASK_XP_REWARD
+                        owner.save(update_fields=['credits'])
+                        award_student_xp(owner, TASK_XP_REWARD)
+                        updated_task.xp_awarded_at = now
+                        update_fields.append('xp_awarded_at')
+                        if update_fields:
+                            updated_task.save(update_fields=update_fields)
+                        return build_task_patch_response(
+                            updated_task,
+                            owner,
+                            f"Task completed! +{TASK_XP_REWARD} XP",
+                            xp_awarded=True,
+                        )
+
+                    if update_fields:
+                        updated_task.save(update_fields=update_fields)
+                    return build_task_patch_response(
+                        updated_task,
+                        owner,
+                        (
+                            "Task completed. Daily task XP limit reached, "
+                            "so no additional XP was awarded today."
+                        ),
+                        daily_limit_reached=True,
+                    )
+
+                if update_fields:
+                    updated_task.save(update_fields=update_fields)
+                return build_task_patch_response(
+                    updated_task,
+                    owner,
+                    "Task completed. XP has already been claimed for this task.",
                 )
 
-            return Response(serializer.data)
+            if not updated_task.is_completed and was_completed:
+                return build_task_patch_response(
+                    updated_task,
+                    owner,
+                    "Task marked active again.",
+                )
+
+            return build_task_patch_response(
+                updated_task,
+                owner,
+                "Task updated.",
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     task.delete()
@@ -339,14 +419,45 @@ def add_focus_log(request):
 
     try:
         student = Student.objects.get(pk=user_id)
-        xp_earned = int(minutes)
-        weekly_entry = award_student_xp(student, xp_earned)
+        requested_minutes = max(int(minutes), 0)
+        focus_reward = get_daily_focus_reward(student)
+        remaining_reward_minutes = max(
+            FOCUS_DAILY_XP_CAP_MINUTES - focus_reward.rewarded_minutes,
+            0,
+        )
+        awarded_minutes = min(requested_minutes, remaining_reward_minutes)
+
+        if awarded_minutes > 0:
+            award_student_xp(student, awarded_minutes)
+            focus_reward.rewarded_minutes += awarded_minutes
+            focus_reward.save(update_fields=['rewarded_minutes', 'updated_at'])
+
+        weekly_entry = ensure_weekly_entry(student, get_current_league_week())
+        daily_limit_reached = focus_reward.rewarded_minutes >= FOCUS_DAILY_XP_CAP_MINUTES
+
+        if awarded_minutes == requested_minutes and awarded_minutes > 0:
+            message = f"Focus Session Complete! +{awarded_minutes} XP"
+        elif awarded_minutes > 0:
+            message = (
+                f"Focus Session Complete! +{awarded_minutes} XP awarded. "
+                "Daily focus XP limit reached."
+            )
+        else:
+            message = (
+                "Focus Session Complete! Daily focus XP limit reached, "
+                "so no additional XP was awarded today."
+            )
 
         return Response(
             {
-                "message": f"Focus Session Complete! +{xp_earned} XP",
+                "message": message,
                 "new_xp": student.current_xp,
                 "weekly_xp": weekly_entry.weekly_xp,
+                "awarded_xp": awarded_minutes,
+                "requested_minutes": requested_minutes,
+                "rewarded_minutes_today": focus_reward.rewarded_minutes,
+                "daily_focus_xp_limit": FOCUS_DAILY_XP_CAP_MINUTES,
+                "daily_limit_reached": daily_limit_reached,
             },
             status=status.HTTP_200_OK,
         )
@@ -540,7 +651,7 @@ def social_confirm(request):
             status=status.HTTP_200_OK,
         )
 
-    encounter, xp_awarded = confirm_connection_request(connection_request)
+    encounter, reward_result = confirm_connection_request(connection_request)
     if encounter is None:
         return Response(
             {"error": "This request has already been resolved."},
@@ -555,7 +666,11 @@ def social_confirm(request):
             "message": "Connection request accepted.",
             "request": ConnectionRequestSerializer(connection_request, context={'request': request}).data,
             "encounter_id": encounter.id,
-            "xp_awarded": xp_awarded,
+            "xp_awarded": reward_result['recipient_xp_awarded'],
+            "recipient_xp_awarded": reward_result['recipient_xp_awarded'],
+            "sender_xp_awarded": reward_result['sender_xp_awarded'],
+            "pair_reward_already_given": reward_result['pair_reward_already_given'],
+            "daily_social_xp_limit": SOCIAL_DAILY_XP_CAP,
             "recipient_new_xp": student.current_xp,
             "sender_new_xp": connection_request.from_student.current_xp,
         },

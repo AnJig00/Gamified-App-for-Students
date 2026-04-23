@@ -30,6 +30,8 @@ class Task(models.Model):
     title = models.CharField(max_length=200)
     is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    xp_awarded_at = models.DateTimeField(null=True, blank=True)
     due_date = models.DateTimeField(null=True, blank=True)
     user = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='tasks')
 
@@ -237,6 +239,30 @@ class WeeklyLeagueEntry(models.Model):
 
     def __str__(self):
         return f'{self.student.username} - {self.league.name} - {self.week.start_date}'
+
+
+class DailyFocusReward(models.Model):
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='daily_focus_rewards',
+    )
+    reward_date = models.DateField()
+    rewarded_minutes = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-reward_date', 'student__username']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student', 'reward_date'],
+                name='unique_daily_focus_reward_per_student',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.student.username} focus reward for {self.reward_date}'
 
 
 class SocialToken(models.Model):
