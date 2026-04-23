@@ -203,9 +203,20 @@ cython_debug/
 
 # Project-local Android and IDE noise
 Code/frontend/.android-user-home/
+Code/frontend/.android/
 Code/frontend/.gradle-user-home/
 Code/frontend/.idea/deploymentTargetSelector.xml
+Code/frontend/keystore.properties
+Code/frontend/keystore/
 Code/backend/.python_deps/
+Code/backend/test-media/
+
+# Local export and submission artifacts
+.edge-pdf-profile/
+C00292846/
+C00292846.zip
+Artifacts/
+Document/*.html
 
 # Local design reference workspace
 Code/Gamified Student Companion UI/

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -66,7 +67,7 @@ class WeeklyTimetableFragment : Fragment() {
 
         val btnAddClass = view.findViewById<MaterialButton>(R.id.btnAddClass)
         val btnNotes = view.findViewById<MaterialButton>(R.id.btnTimetableNotes)
-        val btnDoneTimetable = view.findViewById<MaterialButton>(R.id.btnDoneTimetable)
+        val btnBackTimetable = view.findViewById<ImageButton>(R.id.btnBackTimetable)
         val rvTimetable = view.findViewById<RecyclerView>(R.id.rvTimetable)
 
         val prefs = activity?.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
@@ -87,7 +88,7 @@ class WeeklyTimetableFragment : Fragment() {
         btnNotes.setOnClickListener {
             findNavController().navigate(R.id.notesFragment, NotesNavigation.notebookArgs())
         }
-        btnDoneTimetable.setOnClickListener {
+        btnBackTimetable.setOnClickListener {
             findNavController().navigateUp()
         }
 

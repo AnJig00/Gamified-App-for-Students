@@ -3,22 +3,29 @@ package com.example.meetmerit
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MultipartBody
+import okhttp3.MediaType
+import okhttp3.RequestBody
 
 class ProfileFragment : Fragment() {
 
@@ -40,6 +47,7 @@ class ProfileFragment : Fragment() {
 
     private lateinit var badgeAdapter: BadgeAdapter
 
+    private lateinit var ivProfileAvatar: ShapeableImageView
     private lateinit var tvAvatarInitial: TextView
     private lateinit var tvUsername: TextView
     private lateinit var tvEmail: TextView
@@ -56,6 +64,7 @@ class ProfileFragment : Fragment() {
     private lateinit var tvLeagueSummaryPrimary: TextView
     private lateinit var tvLeagueSummarySecondary: TextView
     private lateinit var tvBadgesCount: TextView
+    private lateinit var btnUploadAvatar: MaterialButton
     private lateinit var btnToggleBadges: MaterialButton
     private lateinit var btnViewAllBadges: MaterialButton
     private lateinit var btnLogout: MaterialButton
@@ -65,6 +74,14 @@ class ProfileFragment : Fragment() {
     private var currentProfile: ProfileResponse? = null
     private var currentBadgeModels: List<ProfileBadgeUiModel> = emptyList()
     private var badgesExpanded = false
+    private var isAvatarUploading = false
+
+    private val avatarPickerLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                uploadAvatar(uri)
+            }
+        }
 
     private val badgeDefinitions = listOf(
         BadgeDefinition(
@@ -144,6 +161,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        ivProfileAvatar = view.findViewById(R.id.ivProfileAvatar)
         tvAvatarInitial = view.findViewById(R.id.tvAvatarInitial)
         tvUsername = view.findViewById(R.id.tv_username)
         tvEmail = view.findViewById(R.id.tvProfileEmail)
@@ -160,6 +178,7 @@ class ProfileFragment : Fragment() {
         tvLeagueSummaryPrimary = view.findViewById(R.id.tvLeagueSummaryPrimary)
         tvLeagueSummarySecondary = view.findViewById(R.id.tvLeagueSummarySecondary)
         tvBadgesCount = view.findViewById(R.id.tvBadgesCount)
+        btnUploadAvatar = view.findViewById(R.id.btnUploadAvatar)
         btnToggleBadges = view.findViewById(R.id.btnToggleBadges)
         btnViewAllBadges = view.findViewById(R.id.btnViewAllBadges)
         btnLogout = view.findViewById(R.id.btn_logout)
@@ -176,6 +195,7 @@ class ProfileFragment : Fragment() {
 
         val initial = currentUsername?.firstOrNull()?.uppercase() ?: "S"
         tvAvatarInitial.text = initial
+        ivProfileAvatar.loadAvatar(null, tvAvatarInitial)
         tvUsername.text = currentUsername ?: "Student"
         tvEmail.text = "Loading profile..."
         tvLeagueChip.text = "League"
@@ -192,6 +212,11 @@ class ProfileFragment : Fragment() {
         tvBadgesCount.text = "0 / ${badgeDefinitions.size}"
         btnToggleBadges.visibility = View.GONE
 
+        btnUploadAvatar.setOnClickListener {
+            if (!isAvatarUploading) {
+                avatarPickerLauncher.launch("image/*")
+            }
+        }
         btnToggleBadges.setOnClickListener {
             badgesExpanded = !badgesExpanded
             updateVisibleBadges()
@@ -253,8 +278,10 @@ class ProfileFragment : Fragment() {
 
         currentUsername = profile.username
         tvAvatarInitial.text = profile.username.firstOrNull()?.uppercase() ?: "S"
+        ivProfileAvatar.loadAvatar(profile.avatarUrl, tvAvatarInitial)
         tvUsername.text = profile.username
         tvEmail.text = if (profile.email.isNotBlank()) profile.email else "No email on file yet"
+        btnUploadAvatar.text = if (profile.avatarUrl.isNullOrBlank()) "Upload Photo" else "Change Photo"
         tvLeagueChip.text = profile.leagueName
         tvLeagueOutcome.text = profile.lastOutcomeLabel
 
@@ -387,8 +414,83 @@ class ProfileFragment : Fragment() {
         requireActivity().finish()
     }
 
+    private fun uploadAvatar(uri: Uri) {
+        if (currentUserId <= 0) {
+            Toast.makeText(context, "Please log in again to upload an avatar.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val resolver = requireContext().contentResolver
+        val mimeType = resolver.getType(uri) ?: "image/*"
+        val fileName = queryDisplayName(uri) ?: "avatar-upload"
+        val avatarBytes = try {
+            resolver.openInputStream(uri)?.use { it.readBytes() }
+        } catch (_: Exception) {
+            null
+        }
+
+        if (avatarBytes == null) {
+            Toast.makeText(context, "Could not read the selected image.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (avatarBytes.size > MAX_AVATAR_BYTES) {
+            Toast.makeText(context, "Avatar images must be 2 MB or smaller.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val requestBody = RequestBody.create(MediaType.parse(mimeType), avatarBytes)
+        val avatarPart = MultipartBody.Part.createFormData("avatar", fileName, requestBody)
+
+        isAvatarUploading = true
+        btnUploadAvatar.isEnabled = false
+        btnUploadAvatar.text = "Uploading..."
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = RetrofitClient.instance.uploadProfileAvatar(currentUserId, avatarPart)
+                withContext(Dispatchers.Main) {
+                    isAvatarUploading = false
+                    btnUploadAvatar.isEnabled = true
+                    val profile = currentProfile?.copy(avatarUrl = response.avatarUrl)
+                    if (profile != null) {
+                        currentProfile = profile
+                        bindProfile(profile)
+                    } else {
+                        fetchProfileStats()
+                    }
+                    Toast.makeText(context, "Avatar updated.", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    isAvatarUploading = false
+                    btnUploadAvatar.isEnabled = true
+                    btnUploadAvatar.text = if (currentProfile?.avatarUrl.isNullOrBlank()) {
+                        "Upload Photo"
+                    } else {
+                        "Change Photo"
+                    }
+                    Toast.makeText(context, "Could not upload avatar.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun queryDisplayName(uri: Uri): String? {
+        val resolver = requireContext().contentResolver
+        resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (index >= 0) {
+                    return cursor.getString(index)
+                }
+            }
+        }
+        return null
+    }
+
     companion object {
         private const val BADGE_PREVIEW_COUNT = 4
+        private const val MAX_AVATAR_BYTES = 2 * 1024 * 1024
         private const val PREF_SOCIAL_INTERACTIONS = "SOCIAL_INTERACTIONS"
     }
 }

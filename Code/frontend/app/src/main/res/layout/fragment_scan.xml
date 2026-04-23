@@ -338,6 +338,39 @@
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
+                android:id="@+id/tvRequestsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Requests &amp; Connections"
+                android:textColor="@color/md_on_background"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvRequestsEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="No incoming requests or recent connections yet."
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRequests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingBottom="4dp"
+                android:visibility="gone"
+                tools:listitem="@layout/item_social_request" />
+
+            <TextView
                 android:id="@+id/tvNearbyLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -369,6 +402,39 @@
                 android:paddingBottom="4dp"
                 android:visibility="gone"
                 tools:listitem="@layout/item_device" />
+
+            <TextView
+                android:id="@+id/tvFriendsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Friends"
+                android:textColor="@color/md_on_background"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvFriendsEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="Accepted connections you add will appear here."
+                android:textColor="@color/md_on_surface_variant"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFriends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingBottom="4dp"
+                android:visibility="gone"
+                tools:listitem="@layout/item_social_friend" />
 
             <TextView
                 android:layout_width="match_parent"

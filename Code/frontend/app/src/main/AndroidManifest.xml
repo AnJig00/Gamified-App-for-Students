@@ -17,6 +17,8 @@
         tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"
         tools:targetApi="s" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"
+        tools:targetApi="s" />
 
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
@@ -24,9 +26,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_meet_merit_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_meet_merit_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MeetMerit"
         android:usesCleartextTraffic="true"

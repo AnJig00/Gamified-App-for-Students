@@ -215,7 +215,28 @@ class FocusFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val request = FocusRequest(currentUserId, selectedMinutes.coerceAtLeast(1))
-                RetrofitClient.instance.addFocusXP(request)
+                val response = RetrofitClient.instance.addFocusXP(request)
+                withContext(Dispatchers.Main) {
+                    tvSuccessReward.text = "+${response.awardedXp} XP"
+                    if (response.awardedXp != selectedMinutes) {
+                        tvSuccessMessage.text = buildString {
+                            append("You stayed focused for $selectedMinutes minutes.")
+                            if (response.awardedXp > 0) {
+                                append(" Only ${response.awardedXp} XP counted because today's focus reward limit is ${response.dailyFocusXpLimit} minutes.")
+                            } else {
+                                append(" Today's focus XP limit has already been reached.")
+                            }
+                        }
+                    }
+
+                    requireActivity()
+                        .getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+                        .edit()
+                        .putInt("CURRENT_XP", response.new_xp)
+                        .apply()
+
+                    Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
